@@ -144,5 +144,17 @@ def time_features_from_frequency_str(freq_str: str) -> List[TimeFeature]:
     raise RuntimeError(supported_freq_msg)
 
 
-def time_features(dates, freq='h'):
+def time_features_encode(dates, freq='h'):
     return np.vstack([feat(dates) for feat in time_features_from_frequency_str(freq)])
+
+
+def time_features_no_encode(df_stamp, freq):
+    df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
+    df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
+    df_stamp['weekday'] = df_stamp.date.apply(lambda row: row.weekday(), 1)
+    df_stamp['hour'] = df_stamp.date.apply(lambda row: row.hour, 1)
+    if freq == 't':
+        df_stamp['minute'] = df_stamp.date.apply(lambda row: row.minute, 1)
+        df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
+    data_stamp = df_stamp.drop('date', axis=1).values
+    return data_stamp
