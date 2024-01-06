@@ -2,31 +2,40 @@ from torch.utils.data import DataLoader
 
 from data_provider.data_loader import MTS_Dataset
 
+data_dict = {
+    'ETTh1': MTS_Dataset,
+    'ETTh2': MTS_Dataset,
+    'ETTm1': MTS_Dataset,
+    'ETTm2': MTS_Dataset,
+}
+
 
 def data_provider(args, flag):
     timeenc = 0 if args.embed != 'timeF' else 1
-
+    DataSet = data_dict[args.data]
     if flag == 'test':
         shuffle_flag = False
-        drop_last = True
         batch_size = 1  # bsz=1 for evaluation
-        freq = args.freq
     else:
         shuffle_flag = True
-        drop_last = True
         batch_size = args.batch_size  # bsz for train and valid
-        freq = args.freq
-
-    data_set = MTS_Dataset(
+    data_set = DataSet(
         root_path=args.root_path,
         data_path=args.data_path,
+        split_type=args.split_type,
+        train_ratio=args.train_ratio,
+        test_ratio=args.test_ratio,
+        freq=args.freq,
+        timeenc=timeenc,
         flag=flag,
         size=[args.seq_len, args.label_len, args.pred_len],
         features=args.features,
         target=args.target,
-        timeenc=timeenc,
-        freq=freq,
-        split_type=args.split_type
+        scale=args.scale,
+        scale_type=args.scale_type,
+        scale_column_wise=args.scale_column_wise
+
+
     )
     print(flag, len(data_set))
     data_loader = DataLoader(
@@ -34,5 +43,5 @@ def data_provider(args, flag):
         batch_size=batch_size,
         shuffle=shuffle_flag,
         num_workers=args.num_workers,
-        drop_last=drop_last)
+        drop_last=True)
     return data_set, data_loader
