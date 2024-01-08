@@ -1,12 +1,13 @@
 from torch.utils.data import DataLoader
 
-from data_provider.data_loader import MTS_Dataset
+from data_provider.data_loader import MTS_Dataset, MSTS_Dataset
 
 data_dict = {
     'ETTh1': MTS_Dataset,
     'ETTh2': MTS_Dataset,
     'ETTm1': MTS_Dataset,
     'ETTm2': MTS_Dataset,
+    'HKda': MSTS_Dataset
 }
 
 
@@ -34,7 +35,6 @@ def data_provider(args, flag):
         scale=args.scale,
         scale_type=args.scale_type,
         scale_column_wise=args.scale_column_wise
-
 
     )
     print(flag, len(data_set))

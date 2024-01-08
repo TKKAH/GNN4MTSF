@@ -1,8 +1,6 @@
 import argparse
-import os
 import torch
 from exp.exp_long_term_forecasting import Exp_Long_Term_Forecast
-from exp.exp_short_term_forecasting import Exp_Short_Term_Forecast
 from utils.print_args import print_args
 import random
 import numpy as np
@@ -38,7 +36,6 @@ if __name__ == '__main__':
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
     parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
-    parser.add_argument('--seasonal_patterns', type=str, default='Monthly', help='subset for M4')
     parser.add_argument('--inverse', action='store_true', help='inverse output data', default=False)
 
     # model define
@@ -63,7 +60,7 @@ if __name__ == '__main__':
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
 
-    #for AGCRN
+    # for AGCRN
     parser.add_argument('--num_nodes', type=int, default=7)
     parser.add_argument('--input_dim', type=int, default=1)
     parser.add_argument('--hidden_dim', type=int, default=64)
@@ -72,7 +69,7 @@ if __name__ == '__main__':
     parser.add_argument('--embed_dim', type=int, default=32)
     parser.add_argument('--cheb_k', default=2, type=int)
 
-    #for MTGNN
+    # for MTGNN
     parser.add_argument('--gcn_true', type=bool, default=True)
     parser.add_argument('--buildA_true', type=bool, default=True)
     parser.add_argument('--gcn_depth', type=int, default=2)
@@ -89,13 +86,10 @@ if __name__ == '__main__':
     parser.add_argument('--tanhalpha', type=int, default=3)
     parser.add_argument('--layer_norm_affline', type=bool, default=True)
 
-
-    #for STWA
+    # for STWA
     parser.add_argument('--channels', type=int, default=16)
     parser.add_argument('--dynamic', type=bool, default=True)
     parser.add_argument('--memory_size', type=int, default=16)
-
-
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
@@ -120,7 +114,13 @@ if __name__ == '__main__':
                         help='hidden layer dimensions of projector (List)')
     parser.add_argument('--p_hidden_layers', type=int, default=2, help='number of hidden layers in projector')
 
-
+    # 待整理
+    parser.add_argument('--split_type', type=str, default='amount')
+    parser.add_argument('--train_ratio', type=float, default=0.7)
+    parser.add_argument('--test_ratio', type=float, default=0.2)
+    parser.add_argument('--scale', type=bool, default=True)
+    parser.add_argument('--scale_type', type=str, default='std')
+    parser.add_argument('--scale_column_wise', type=bool, default=True)
     args = parser.parse_args()
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 
@@ -135,8 +135,6 @@ if __name__ == '__main__':
 
     if args.task_name == 'long_term_forecast':
         Exp = Exp_Long_Term_Forecast
-    elif args.task_name == 'short_term_forecast':
-        Exp = Exp_Short_Term_Forecast
     else:
         raise Exception("Invalid Task!")
 

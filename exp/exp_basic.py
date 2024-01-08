@@ -56,13 +56,28 @@ class Exp_Basic(object):
             print('Use CPU')
         return device
 
-    def _get_data(self):
+    def _get_data(self, flag):
         data_set, data_loader = data_provider(self.args, flag)
         return data_set, data_loader
 
     def _select_optimizer(self):
         model_optim = optim.Adam(self.model.parameters(), lr=self.args.learning_rate)
         return model_optim
+
+    def _generate_outputs(self, batch_x, batch_x_mark, dec_inp, batch_y_mark):
+        if self.args.use_amp:
+            with torch.cuda.amp.autocast():
+                if self.args.output_attention:
+                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                else:
+                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+        else:
+            if self.args.output_attention:
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+
+            else:
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+        return outputs
 
     @staticmethod
     def _select_criterion(loss_name):
@@ -75,11 +90,11 @@ class Exp_Basic(object):
         elif loss_name == 'SMAPE':
             return smape_loss()
 
-    def vali(self):
+    def vali(self, vali_data, vali_loader, criterion):
         pass
 
-    def train(self):
+    def train(self, setting):
         pass
 
-    def test(self):
+    def test(self, setting, test=0):
         pass
