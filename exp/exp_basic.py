@@ -6,7 +6,7 @@ from data_provider.data_factory import data_provider
 from models import Autoformer, Transformer, TimesNet, Nonstationary_Transformer, DLinear, FEDformer, \
     Informer, LightTS, Reformer, ETSformer, Pyraformer, PatchTST, MICN, Crossformer, FiLM, iTransformer, \
     Koopa, TiDE, MTGNN, AGCRN, STWA
-from utils.losses import mape_loss, smape_loss, mase_loss
+from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
 
 
 class Exp_Basic(object):
@@ -84,11 +84,11 @@ class Exp_Basic(object):
     @staticmethod
     def _select_criterion(loss_name):
         if loss_name == 'MSE':
-            return nn.MSELoss()
+            return mse_loss()
         elif loss_name == 'MAPE':
             return mape_loss()
-        elif loss_name == 'MASE':
-            return mase_loss()
+        elif loss_name == 'MAE':
+            return mae_loss()
         elif loss_name == 'SMAPE':
             return smape_loss()
 

@@ -1,11 +1,14 @@
-from exp.exp_basic import Exp_Basic
-from utils.tools import EarlyStopping, adjust_learning_rate, visual
-from utils.metrics import metric
-import torch
 import os
 import time
 import warnings
+
 import numpy as np
+import torch
+from tqdm import tqdm
+
+from exp.exp_basic import Exp_Basic
+from utils.metrics import metric
+from utils.tools import EarlyStopping, adjust_learning_rate, visual
 
 warnings.filterwarnings('ignore')
 
@@ -59,7 +62,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True, logger=self.logger)
 
         model_optim = self._select_optimizer()
-        criterion = self._select_criterion(loss_name=self.args.loss_name)
+        criterion = self._select_criterion(loss_name=self.args.loss)
 
         # torch.cuda.amp.GradScaler() 是 PyTorch 提供的用于自动混合精度训练的梯度缩放器。
         # 它用于缩放和还原梯度，以确保在使用半精度浮点数（half-precision）进行计算时，梯度的范围仍然适合于单精度浮点数（full-precision）。
@@ -73,7 +76,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
             self.model.train()
             epoch_time = time.time()
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(train_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in tqdm(enumerate(train_loader),
+                                                                          total=len(train_loader),
+                                                                          leave=True):
+                # tqdm(enumerate(train_loader), total=len(train_loader),
+                #      leave=True)
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
