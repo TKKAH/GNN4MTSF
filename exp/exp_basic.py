@@ -10,7 +10,7 @@ from utils.losses import mape_loss, smape_loss, mase_loss
 
 
 class Exp_Basic(object):
-    def __init__(self, args):
+    def __init__(self, args, logger):
         self.args = args
         self.model_dict = {
             'TimesNet': TimesNet,
@@ -35,8 +35,10 @@ class Exp_Basic(object):
             'AGCRN': AGCRN,
             'STWA': STWA,
         }
+        self.logger = logger
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
+
 
     def _build_model(self):
         model = self.model_dict[self.args.model].Model(self.args).float()
@@ -50,14 +52,14 @@ class Exp_Basic(object):
             os.environ["CUDA_VISIBLE_DEVICES"] = str(
                 self.args.gpu) if not self.args.use_multi_gpu else self.args.devices
             device = torch.device('cuda:{}'.format(self.args.gpu))
-            print('Use GPU: cuda:{}'.format(self.args.gpu))
+            self.logger.info('Use GPU: cuda:{}'.format(self.args.gpu))
         else:
             device = torch.device('cpu')
-            print('Use CPU')
+            self.logger.info('Use CPU')
         return device
 
     def _get_data(self, flag):
-        data_set, data_loader = data_provider(self.args, flag)
+        data_set, data_loader = data_provider(self.args, flag,self.logger)
         return data_set, data_loader
 
     def _select_optimizer(self):

@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 
 class MTS_Dataset(Dataset):
     def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
-                 features, target, scale, scale_type, scale_column_wise):
+                 features, target, scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
         self.seq_len = size[0]
@@ -34,6 +34,7 @@ class MTS_Dataset(Dataset):
         self.split_type = split_type
         self.train_ratio = train_ratio
         self.test_ratio = test_ratio
+        self.logger = logger
 
         self.root_path = root_path
         self.data_path = data_path
@@ -57,7 +58,7 @@ class MTS_Dataset(Dataset):
         # Normalize the overall data based on the training set data
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
-            data, self.scaler = scale_dataset(train_data.values, df_data.values, self.scale_type,
+            data, self.scaler = scale_dataset(train_data.values, df_data.values, self.scale_type, self.logger,
                                               self.scale_column_wise)
         else:
             data = df_data.values
@@ -96,7 +97,7 @@ class MTS_Dataset(Dataset):
 
 class MSTS_Dataset(Dataset):
     def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
-                 features, target, scale, scale_type, scale_column_wise):
+                 features, target, scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
         self.seq_len = size[0]
@@ -117,7 +118,7 @@ class MSTS_Dataset(Dataset):
         self.split_type = split_type
         self.train_ratio = train_ratio
         self.test_ratio = test_ratio
-
+        self.logger = logger
         self.root_path = root_path
         self.data_path = data_path
         self.__read_data__()
@@ -133,7 +134,7 @@ class MSTS_Dataset(Dataset):
         # Normalize the overall data based on the training set data
         if self.scale:
             train_data = data[border1s[0]:border2s[0]]
-            data, self.scaler = scale_dataset(train_data, data, self.scale_type,
+            data, self.scaler = scale_dataset(train_data, data, self.scale_type, self.logger,
                                               self.scale_column_wise)
         # Add time feature
         df_stamp = pd.DataFrame(np_raw['dates'][border1:border2])

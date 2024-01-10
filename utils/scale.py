@@ -6,6 +6,7 @@ class NScaler(object):
     """
         No Scaler
         """
+
     def transform(self, data):
         return data
 
@@ -23,7 +24,6 @@ class StandardScaler:
         self.std = std
 
     def transform(self, data):
-        print(((data - self.mean) / self.std).shape)
         return (data - self.mean) / self.std
 
     def inverse_transform(self, data):
@@ -90,7 +90,7 @@ class ColumnMinMaxScaler():
         return (data * self.min_max + self.min)
 
 
-def scale_dataset(train_data, data, scaler, column_wise=False):
+def scale_dataset(train_data, data, scaler, logger, column_wise=False):
     if scaler == 'max01':
         if column_wise:
             minimum = train_data.min(axis=0, keepdims=True)
@@ -100,7 +100,7 @@ def scale_dataset(train_data, data, scaler, column_wise=False):
             maximum = train_data.max()
         scaler = MinMax01Scaler(minimum, maximum)
         data = scaler.transform(data)
-        print('Normalize the dataset by MinMax01 Normalization')
+        logger.info('Normalize the dataset by MinMax01 Normalization')
     elif scaler == 'max11':
         if column_wise:
             minimum = train_data.min(axis=0, keepdims=True)
@@ -110,7 +110,7 @@ def scale_dataset(train_data, data, scaler, column_wise=False):
             maximum = train_data.max()
         scaler = MinMax11Scaler(minimum, maximum)
         data = scaler.transform(data)
-        print('Normalize the dataset by MinMax11 Normalization')
+        logger.info('Normalize the dataset by MinMax11 Normalization')
     elif scaler == 'std':
         if column_wise:
             mean = train_data.mean(axis=0, keepdims=True)
@@ -120,17 +120,17 @@ def scale_dataset(train_data, data, scaler, column_wise=False):
             std = train_data.std()
         scaler = StandardScaler(mean, std)
         data = scaler.transform(data)
-        print('Normalize the dataset by Standard Normalization')
+        logger.info('Normalize the dataset by Standard Normalization')
     elif scaler == 'None':
         scaler = NScaler()
         data = scaler.transform(data)
-        print('Does not normalize the dataset')
+        logger.info('Does not normalize the dataset')
     elif scaler == 'cmax':
         # column min max, to be depressed
         # note: axis must be the spatial dimension, please check !
         scaler = ColumnMinMaxScaler(train_data.min(axis=0), train_data.max(axis=0))
         data = scaler.transform(data)
-        print('Normalize the dataset by Column Min-Max Normalization')
+        logger.info('Normalize the dataset by Column Min-Max Normalization')
     else:
         raise ValueError
     return data, scaler

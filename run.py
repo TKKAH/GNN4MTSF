@@ -1,11 +1,15 @@
 import argparse
+import os
+
 import torch
 from exp.exp_long_term_forecasting import Exp_Long_Term_Forecast
-from utils.print_args import print_args
+from utils.logger import get_logger, get_log_dir
+from utils.print_args import log_args
 import random
 import numpy as np
 
 if __name__ == '__main__':
+    os.system('')
     fix_seed = 2021
     random.seed(fix_seed)
     torch.manual_seed(fix_seed)
@@ -130,8 +134,12 @@ if __name__ == '__main__':
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
 
-    print('Args in experiment:')
-    print_args(args)
+    # logging
+    log_dir = get_log_dir(args)
+    logger = get_logger(log_dir, __name__, 'info.log', level='INFO')
+
+    logger.info('Args in experiment:')
+    log_args(args, logger)
 
     if args.task_name == 'long_term_forecast':
         Exp = Exp_Long_Term_Forecast
@@ -141,7 +149,7 @@ if __name__ == '__main__':
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            exp = Exp(args)  # set experiments
+            exp = Exp(args, logger)  # set experiments
             setting = '{}_{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(
                 args.task_name,
                 args.model_id,
@@ -161,10 +169,10 @@ if __name__ == '__main__':
                 args.distil,
                 args.des, ii)
 
-            print('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
+            logger.info('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
             exp.train(setting)
 
-            print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+            logger.info('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.test(setting)
             torch.cuda.empty_cache()
     else:
@@ -188,7 +196,7 @@ if __name__ == '__main__':
             args.distil,
             args.des, ii)
 
-        exp = Exp(args)  # set experiments
-        print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
+        exp = Exp(args, logger)  # set experiments
+        logger.info('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, test=1)
         torch.cuda.empty_cache()

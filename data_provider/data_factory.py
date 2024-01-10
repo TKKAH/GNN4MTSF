@@ -11,7 +11,7 @@ data_dict = {
 }
 
 
-def data_provider(args, flag):
+def data_provider(args, flag, logger):
     timeenc = 0 if args.embed != 'timeF' else 1
     DataSet = data_dict[args.data]
     if flag == 'test':
@@ -34,10 +34,11 @@ def data_provider(args, flag):
         target=args.target,
         scale=args.scale,
         scale_type=args.scale_type,
+        logger=logger,
         scale_column_wise=args.scale_column_wise
 
     )
-    print(flag, len(data_set))
+    logger.info(flag+": "+str(len(data_set)))
     data_loader = DataLoader(
         data_set,
         batch_size=batch_size,
