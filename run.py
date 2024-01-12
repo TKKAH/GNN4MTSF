@@ -27,8 +27,8 @@ if __name__ == '__main__':
 
     # data loader
     parser.add_argument('--data', type=str, required=True, default='ETTh1', help='dataset type')
-    parser.add_argument('--root_path', type=str, default='./data/ETT/', help='root path of the data file')
-    parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
+    parser.add_argument('--root_path', type=str, default='./dataset/traffic/PEMS-BAY', help='root path of the data file')
+    parser.add_argument('--data_path', type=str, default='pems-bay.csv', help='data file')
     parser.add_argument('--features', type=str, default='M',
                         help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
     parser.add_argument('--target', type=str, default='OT', help='target feature in S or MS task')
@@ -64,14 +64,20 @@ if __name__ == '__main__':
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
 
-    # for AGCRN
-    parser.add_argument('--num_nodes', type=int, default=7)
+    # for DCRNN and AGCRN
+    parser.add_argument('--num_nodes', type=int, default=325)
     parser.add_argument('--input_dim', type=int, default=1)
     parser.add_argument('--hidden_dim', type=int, default=64)
     parser.add_argument('--output_dim', type=int, default=1)
-    parser.add_argument('--num_layers', type=int, default=2)
+    parser.add_argument('--num_layers', type=int, default=1)
     parser.add_argument('--embed_dim', type=int, default=32)
     parser.add_argument('--cheb_k', default=2, type=int)
+    parser.add_argument('--cl_decay_steps', type=int, default=1000)
+    parser.add_argument('--use_curriculum_learning', type=bool, default=True)
+    parser.add_argument('--filter_type', type=str, default='laplacian')
+    parser.add_argument('--predefined_graph', type=bool, default=False)
+    parser.add_argument('--graph_path', type=str, default='adj_mx_pems_bay.pkl')
+
 
     # for MTGNN
     parser.add_argument('--gcn_true', type=bool, default=True)

@@ -5,7 +5,8 @@ from torch import nn, optim
 from data_provider.data_factory import data_provider
 from models import Autoformer, Transformer, TimesNet, Nonstationary_Transformer, DLinear, FEDformer, \
     Informer, LightTS, Reformer, ETSformer, Pyraformer, PatchTST, MICN, Crossformer, FiLM, iTransformer, \
-    Koopa, TiDE, MTGNN, AGCRN, STWA
+    Koopa, TiDE, MTGNN, AGCRN, STWA, DCRNN
+from utils.graph_load import load_graph_data
 from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
 
 
@@ -13,6 +14,7 @@ class Exp_Basic(object):
     def __init__(self, args, logger):
         self.args = args
         self.model_dict = {
+            'DCRNN': DCRNN,
             'TimesNet': TimesNet,
             'Autoformer': Autoformer,
             'Transformer': Transformer,
@@ -39,9 +41,12 @@ class Exp_Basic(object):
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
 
-
     def _build_model(self):
-        model = self.model_dict[self.args.model].Model(self.args).float()
+        adj_mx = None
+        if self.args.predefined_graph is True:
+            adj_mx = load_graph_data(os.path.join(self.args.root_path, self.args.graph_path))
+
+        model = self.model_dict[self.args.model].Model(self.args, adj_mx, self.device).float()
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
@@ -59,7 +64,7 @@ class Exp_Basic(object):
         return device
 
     def _get_data(self, flag):
-        data_set, data_loader = data_provider(self.args, flag,self.logger)
+        data_set, data_loader = data_provider(self.args, flag, self.logger)
         return data_set, data_loader
 
     def _select_optimizer(self):

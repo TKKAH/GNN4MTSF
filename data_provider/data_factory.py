@@ -7,6 +7,7 @@ data_dict = {
     'ETTh2': MTS_Dataset,
     'ETTm1': MTS_Dataset,
     'ETTm2': MTS_Dataset,
+    'PEMS-BAY': MTS_Dataset,
     'HKda': MSTS_Dataset
 }
 
@@ -38,7 +39,7 @@ def data_provider(args, flag, logger):
         scale_column_wise=args.scale_column_wise
 
     )
-    logger.info(flag+": "+str(len(data_set)))
+    logger.info(flag + ": " + str(len(data_set)))
     data_loader = DataLoader(
         data_set,
         batch_size=batch_size,

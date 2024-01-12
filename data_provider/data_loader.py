@@ -85,7 +85,8 @@ class MTS_Dataset(Dataset):
         seq_y = self.data_y[r_begin:r_end]
         seq_x_mark = self.data_stamp[s_begin:s_end]
         seq_y_mark = self.data_stamp[r_begin:r_end]
-
+        seq_x = np.expand_dims(seq_x, axis=-1)
+        seq_y = np.expand_dims(seq_y, axis=-1)
         return seq_x, seq_y, seq_x_mark, seq_y_mark
 
     def __len__(self):

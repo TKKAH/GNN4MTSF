@@ -21,7 +21,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
         total_loss = []
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(vali_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in tqdm(enumerate(vali_loader),
+                                                                          total=len(vali_loader),
+                                                                          leave=True):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
 
@@ -79,8 +81,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in tqdm(enumerate(train_loader),
                                                                           total=len(train_loader),
                                                                           leave=True):
-                # tqdm(enumerate(train_loader), total=len(train_loader),
-                #      leave=True)
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
@@ -93,14 +93,15 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 # 第一个维度是Batch
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...]).float()
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, ...], dec_inp], dim=1).float().to(self.device)
-
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
+                                                 batches_seen=i+train_steps * epoch)[0]
                         else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
+                                                 batches_seen=i + train_steps * epoch)
 
                         f_dim = -1 if self.args.features == 'MS' else 0
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
@@ -109,9 +110,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         train_loss.append(loss.item())
                 else:
                     if self.args.output_attention:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
+                                             batches_seen=i + train_steps * epoch)[0]
                     else:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
+                                             batches_seen=i + train_steps * epoch)
 
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
@@ -168,7 +171,9 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         self.model.eval()
         with torch.no_grad():
-            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in enumerate(test_loader):
+            for i, (batch_x, batch_y, batch_x_mark, batch_y_mark) in tqdm(enumerate(test_loader),
+                                                                          total=len(test_loader),
+                                                                          leave=True):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float().to(self.device)
 
