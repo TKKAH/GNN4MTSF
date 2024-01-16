@@ -17,10 +17,9 @@ def data_provider(args, flag, logger):
     DataSet = data_dict[args.data]
     if flag == 'test':
         shuffle_flag = False
-        batch_size = 1  # bsz=1 for evaluation
     else:
         shuffle_flag = True
-        batch_size = args.batch_size  # bsz for train and valid
+    batch_size = args.batch_size  
     data_set = DataSet(
         root_path=args.root_path,
         data_path=args.data_path,
