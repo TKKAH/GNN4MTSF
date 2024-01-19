@@ -70,7 +70,7 @@ if __name__ == '__main__':
     parser.add_argument('--hidden_dim', type=int, default=64)
     parser.add_argument('--output_dim', type=int, default=1)
     parser.add_argument('--num_layers', type=int, default=1)
-    parser.add_argument('--embed_dim', type=int, default=32)
+    parser.add_argument('--embed_dim', type=int, default=32) 
     parser.add_argument('--cheb_k', default=2, type=int)
     parser.add_argument('--cl_decay_steps', type=int, default=1000)
     parser.add_argument('--use_curriculum_learning', type=bool, default=True)
@@ -78,7 +78,8 @@ if __name__ == '__main__':
     parser.add_argument('--predefined_graph', type=bool, default=False)
     parser.add_argument('--graph_path', type=str, default='adj_mx_pems_bay.pkl')
 
-
+    # for HiPPOAGCRN
+    parser.add_argument('--HiPPOorder', type=int, default=64)
     # for MTGNN
     parser.add_argument('--gcn_true', type=bool, default=True)
     parser.add_argument('--buildA_true', type=bool, default=True)
