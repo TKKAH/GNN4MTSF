@@ -64,7 +64,7 @@ if __name__ == '__main__':
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
 
-    # for DCRNN and AGCRN
+    # for DCRNN and AGCRN 
     parser.add_argument('--num_nodes', type=int, default=325)
     parser.add_argument('--input_dim', type=int, default=1)
     parser.add_argument('--hidden_dim', type=int, default=64)
@@ -80,6 +80,23 @@ if __name__ == '__main__':
 
     # for HiPPOAGCRN
     parser.add_argument('--HiPPOorder', type=int, default=64)
+
+    # for MTGAT
+    # parser.add_argument('--num_nodes', type=int, default=325)
+    # parser.add_argument('--dropout', type=float, default=0.1, help='dropout')
+    # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    # parser.add_argument('--output_dim', type=int, default=1)
+    parser.add_argument('--kernel_size', type=int, default=7)
+    parser.add_argument('--use_gatv2', type=bool, default=True)
+    parser.add_argument('--MTGAT_alpha', type=float, default=0.2)
+    parser.add_argument('--MTGAT_gru_n_layers', type=int, default=1)
+    parser.add_argument('--MTGAT_gru_hid_dim', type=int, default=150)
+    parser.add_argument('--MTGAT_forecast_n_layers', type=int, default=1)
+    parser.add_argument('--MTGAT_forecast_hid_dim', type=int, default=150)
+    parser.add_argument('--feat_gat_embed_dim', type=int, default=None)
+    parser.add_argument('--time_gat_embed_dim', type=int, default=None)
+
     # for MTGNN
     parser.add_argument('--gcn_true', type=bool, default=True)
     parser.add_argument('--buildA_true', type=bool, default=True)
