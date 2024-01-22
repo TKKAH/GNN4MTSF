@@ -12,9 +12,9 @@ class Model(nn.Module):
     ):
         super(Model, self).__init__()
 
-        self.conv = ConvLayer(args.num_nodes, args.kernel_size)
-        self.feature_gat = FeatureAttentionLayer(args.num_nodes, args.seq_len, args.dropout, args.MTGAT_alpha, args.feat_gat_embed_dim, args.use_gatv2)
-        self.temporal_gat = TemporalAttentionLayer(args.num_nodes, args.seq_len, args.dropout, args.MTGAT_alpha, args.time_gat_embed_dim, args.use_gatv2)
+        self.conv = ConvLayer(args.num_nodes, args.MTGAT_kernel_size)
+        self.feature_gat = FeatureAttentionLayer(args.num_nodes, args.seq_len, args.dropout, args.MTGAT_alpha, args.MTGAT_feat_gat_embed_dim, args.MTGAT_use_gatv2)
+        self.temporal_gat = TemporalAttentionLayer(args.num_nodes, args.seq_len, args.dropout, args.MTGAT_alpha, args.MTGAT_time_gat_embed_dim, args.MTGAT_use_gatv2)
         self.gru = GRULayer(3 * args.num_nodes, args.MTGAT_gru_hid_dim, args.MTGAT_gru_n_layers, args.dropout)
         self.forecasting_model = Forecasting_Model(args.preq_len, args.MTGAT_gru_hid_dim,args.MTGAT_forecast_hid_dim, args.num_nodes, args.MTGAT_forecast_n_layers, args.dropout)
 

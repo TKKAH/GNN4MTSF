@@ -63,7 +63,7 @@ if __name__ == '__main__':
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
     parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
-
+    # 下列为各模型供调的所有参数，注释的参数表示多模型共用 
     # for DCRNN and AGCRN 
     parser.add_argument('--num_nodes', type=int, default=325)
     parser.add_argument('--input_dim', type=int, default=1)
@@ -87,15 +87,28 @@ if __name__ == '__main__':
     # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
     # parser.add_argument('--output_dim', type=int, default=1)
-    parser.add_argument('--kernel_size', type=int, default=7)
-    parser.add_argument('--use_gatv2', type=bool, default=True)
+    parser.add_argument('--MTGAT_kernel_size', type=int, default=7)
+    parser.add_argument('--MTGAT_use_gatv2', type=bool, default=True)
     parser.add_argument('--MTGAT_alpha', type=float, default=0.2)
     parser.add_argument('--MTGAT_gru_n_layers', type=int, default=1)
     parser.add_argument('--MTGAT_gru_hid_dim', type=int, default=150)
     parser.add_argument('--MTGAT_forecast_n_layers', type=int, default=1)
     parser.add_argument('--MTGAT_forecast_hid_dim', type=int, default=150)
-    parser.add_argument('--feat_gat_embed_dim', type=int, default=None)
-    parser.add_argument('--time_gat_embed_dim', type=int, default=None)
+    parser.add_argument('--MTGAT_feat_gat_embed_dim', type=int, default=None)
+    parser.add_argument('--MTGAT_time_gat_embed_dim', type=int, default=None)
+
+    #for STSGCN
+    # parser.add_argument('--input_dim', type=int, default=1)
+    # parser.add_argument('--num_nodes', type=int, default=325)
+    # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    parser.add_argument('--STSGCN_hidden_dims', type=list, default=[[64, 64, 64], [64, 64, 64], [64, 64, 64], [64, 64, 64]])
+    parser.add_argument('--STSGCN_out_layer_dim', type=int, default=128)
+    parser.add_argument('--STSGCN_first_layer_embedding_size', type=int, default=64)
+    parser.add_argument('--STSGCN_activation', type=str, default='GLU')
+    parser.add_argument('--STSGCN_use_mask', type=bool, default=True)
+    parser.add_argument('--STSGCN_strides', type=int, default=3)
+
 
     # for MTGNN
     parser.add_argument('--gcn_true', type=bool, default=True)
