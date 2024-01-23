@@ -3,7 +3,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import MTGAT, STSGCN, Autoformer, HiPPOAGCRN, Transformer, TimesNet, Nonstationary_Transformer, DLinear, FEDformer, \
+from models import FCSTGNN, MTGAT, STSGCN, Autoformer, HiPPOAGCRN, Transformer, TimesNet, Nonstationary_Transformer, DLinear, FEDformer, \
     Informer, LightTS, Reformer, ETSformer, Pyraformer, PatchTST, MICN, Crossformer, FiLM, iTransformer, \
     Koopa, TiDE, MTGNN, AGCRN, STWA, DCRNN
 from utils.graph_load import load_graph_data
@@ -38,7 +38,8 @@ class Exp_Basic(object):
             'HiPPOAGCRN':HiPPOAGCRN,
             'STWA': STWA,
             'MTGAT':MTGAT,
-            'STSGCN':STSGCN
+            'STSGCN':STSGCN,
+            'FCSTGNN':FCSTGNN
         }
         self.logger = logger
         self.device = self._acquire_device()

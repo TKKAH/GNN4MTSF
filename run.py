@@ -35,7 +35,13 @@ if __name__ == '__main__':
     parser.add_argument('--freq', type=str, default='h',
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
-
+    parser.add_argument('--split_type', type=str, default='amount')
+    parser.add_argument('--train_ratio', type=float, default=0.7)
+    parser.add_argument('--test_ratio', type=float, default=0.2)
+    parser.add_argument('--scale', type=bool, default=True)
+    parser.add_argument('--scale_type', type=str, default='std')
+    parser.add_argument('--scale_column_wise', type=bool, default=True)
+    
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
@@ -109,6 +115,19 @@ if __name__ == '__main__':
     parser.add_argument('--STSGCN_use_mask', type=bool, default=True)
     parser.add_argument('--STSGCN_strides', type=int, default=3)
 
+    # for FCSTGNN
+    # parser.add_argument('--input_dim', type=int, default=1)
+    # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    # parser.add_argument('--num_nodes', type=int, default=325)
+    parser.add_argument('--FCSTGNN_pooling_choice', type=str, default='mean')
+    parser.add_argument('--FCSTGNN_decay', type=float, default=0.7)
+    parser.add_argument('--FCSTGNN_conv_kernel', type=int, default=6)
+    parser.add_argument('--FCSTGNN_moving_window', type=int, default=2)
+    parser.add_argument('--FCSTGNN_1DCNN_hidden_dim', type=int, default=48)
+    parser.add_argument('--FCSTGNN_1DCNN_output_dim', type=int, default=18)
+    parser.add_argument('--FCSTGNN_hidden_dim', type=int, default=16)
+    parser.add_argument('--FCSTGNN_out_layer_dim', type=int, default=128)
 
     # for MTGNN
     parser.add_argument('--gcn_true', type=bool, default=True)
@@ -155,13 +174,6 @@ if __name__ == '__main__':
                         help='hidden layer dimensions of projector (List)')
     parser.add_argument('--p_hidden_layers', type=int, default=2, help='number of hidden layers in projector')
 
-    # 待整理
-    parser.add_argument('--split_type', type=str, default='amount')
-    parser.add_argument('--train_ratio', type=float, default=0.7)
-    parser.add_argument('--test_ratio', type=float, default=0.2)
-    parser.add_argument('--scale', type=bool, default=True)
-    parser.add_argument('--scale_type', type=str, default='std')
-    parser.add_argument('--scale_column_wise', type=bool, default=True)
     args = parser.parse_args()
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
 
