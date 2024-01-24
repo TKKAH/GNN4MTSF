@@ -3,10 +3,10 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import FCSTGNN, MTGAT, STSGCN, Autoformer, HiPPOAGCRN, Transformer, TimesNet, Nonstationary_Transformer, DLinear, FEDformer, \
+from models import FCSTGNN, GTS, MTGAT, STSGCN, Autoformer, HiPPOAGCRN, Transformer, TimesNet, Nonstationary_Transformer, DLinear, FEDformer, \
     Informer, LightTS, Reformer, ETSformer, Pyraformer, PatchTST, MICN, Crossformer, FiLM, iTransformer, \
     Koopa, TiDE, MTGNN, AGCRN, STWA, DCRNN
-from utils.graph_load import load_graph_data
+from utils.graph_load import create_knn_graph, load_graph_data
 from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
 
 
@@ -39,17 +39,22 @@ class Exp_Basic(object):
             'STWA': STWA,
             'MTGAT':MTGAT,
             'STSGCN':STSGCN,
-            'FCSTGNN':FCSTGNN
+            'FCSTGNN':FCSTGNN,
+            'GTS':GTS
         }
         self.logger = logger
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
+        self.adj_mx=None
 
     def _build_model(self):
-        adj_mx = None
+        adj_mx=None
         if self.args.predefined_graph is True:
             adj_mx = load_graph_data(os.path.join(self.args.root_path, self.args.graph_path))
-
+            self.adj_mx=adj_mx
+        elif self.args.predefined_graph is False and self.args.model=='GTS':
+            adj_mx=  create_knn_graph(self.args.root_path,self.args.data_path,self.args.GTS_neighbor_graph_k)
+            self.adj_mx=adj_mx[0]
         model = self.model_dict[self.args.model].Model(self.args, adj_mx, self.device).float()
 
         if self.args.use_multi_gpu and self.args.use_gpu:
@@ -78,17 +83,20 @@ class Exp_Basic(object):
     def _generate_outputs(self, batch_x, batch_x_mark, dec_inp, batch_y_mark):
         if self.args.use_amp:
             with torch.cuda.amp.autocast():
-                if self.args.output_attention:
-                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                else:
-                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-        else:
-            if self.args.output_attention:
-                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-
-            else:
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+        else:
+            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
         return outputs
+    def _spllit_outputs_and_calculate_regularization_loss(self,outputs):
+        loss=0
+        if self.args.loss_with_regularization is True and self.adj_mx is not None:
+            pred = outputs[1].view(outputs[1].shape[0] * outputs[1].shape[1])
+            true_label = self.adj_mx.view(outputs[1].shape[0] * outputs[1].shape[1]).to(self.device)
+            compute_loss = torch.nn.BCELoss()
+            loss = compute_loss(pred, true_label)
+            return outputs[0],loss
+        else:
+            return outputs,loss
 
     @staticmethod
     def _select_criterion(loss_name):

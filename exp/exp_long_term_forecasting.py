@@ -35,6 +35,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, ...], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self._generate_outputs(batch_x, batch_x_mark, dec_inp, batch_y_mark)
+                outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
@@ -42,7 +43,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
 
-                loss = criterion(pred, true)
+                loss = criterion(pred, true)+regularization_loss
 
                 total_loss.append(loss)
         total_loss = np.average(total_loss)
@@ -96,30 +97,22 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
-                        if self.args.output_attention:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
-                                                 batches_seen=i+train_steps * epoch)[0]
-                        else:
-                            outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
-                                                 batches_seen=i + train_steps * epoch)
-
+                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
+                                                 batches_seen=i+train_steps * epoch)
+                        outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                         f_dim = -1 if self.args.features == 'MS' else 0
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
                         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                        loss = criterion(outputs, batch_y)
+                        loss = criterion(outputs, batch_y)+regularization_loss
                         train_loss.append(loss.item())
                 else:
-                    if self.args.output_attention:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
-                                             batches_seen=i + train_steps * epoch)[0]
-                    else:
-                        outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
+                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
                                              batches_seen=i + train_steps * epoch)
-
+                    outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                     f_dim = -1 if self.args.features == 'MS' else 0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
-                    loss = criterion(outputs, batch_y)
+                    loss = criterion(outputs, batch_y)+regularization_loss
                     train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -185,7 +178,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 dec_inp = torch.cat([batch_y[:, :self.args.label_len, ...], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self._generate_outputs(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-
+                outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                 f_dim = -1 if self.args.features == 'MS' else 0
                 outputs = outputs[:, -self.args.pred_len:, :]
                 batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)

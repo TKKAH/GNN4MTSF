@@ -41,6 +41,8 @@ if __name__ == '__main__':
     parser.add_argument('--scale', type=bool, default=True)
     parser.add_argument('--scale_type', type=str, default='std')
     parser.add_argument('--scale_column_wise', type=bool, default=True)
+    parser.add_argument('--predefined_graph', type=bool, default=False)
+    parser.add_argument('--graph_path', type=str, default='adj_mx_pems_bay.pkl')
     
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
@@ -68,9 +70,9 @@ if __name__ == '__main__':
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
-    parser.add_argument('--output_attention', action='store_true', help='whether to output attention in ecoder')
     # 下列为各模型供调的所有参数，注释的参数表示多模型共用 
-    # for DCRNN and AGCRN 
+    # for DCRNN 
+    # predefined_graph should be true
     parser.add_argument('--num_nodes', type=int, default=325)
     parser.add_argument('--input_dim', type=int, default=1)
     parser.add_argument('--hidden_dim', type=int, default=64)
@@ -81,13 +83,15 @@ if __name__ == '__main__':
     parser.add_argument('--cl_decay_steps', type=int, default=1000)
     parser.add_argument('--use_curriculum_learning', type=bool, default=True)
     parser.add_argument('--filter_type', type=str, default='laplacian')
-    parser.add_argument('--predefined_graph', type=bool, default=False)
-    parser.add_argument('--graph_path', type=str, default='adj_mx_pems_bay.pkl')
+    # for AGCRN
+    # predefined_graph should be false
 
     # for HiPPOAGCRN
+    # predefined_graph should be false
     parser.add_argument('--HiPPOorder', type=int, default=64)
 
     # for MTGAT
+    # predefined_graph should be false
     # parser.add_argument('--num_nodes', type=int, default=325)
     # parser.add_argument('--dropout', type=float, default=0.1, help='dropout')
     # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
@@ -104,6 +108,7 @@ if __name__ == '__main__':
     parser.add_argument('--MTGAT_time_gat_embed_dim', type=int, default=None)
 
     #for STSGCN
+    # predefined_graph should be true
     # parser.add_argument('--input_dim', type=int, default=1)
     # parser.add_argument('--num_nodes', type=int, default=325)
     # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
@@ -116,6 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('--STSGCN_strides', type=int, default=3)
 
     # for FCSTGNN
+    # predefined_graph should be false
     # parser.add_argument('--input_dim', type=int, default=1)
     # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
@@ -129,27 +135,20 @@ if __name__ == '__main__':
     parser.add_argument('--FCSTGNN_hidden_dim', type=int, default=16)
     parser.add_argument('--FCSTGNN_out_layer_dim', type=int, default=128)
 
-    # for MTGNN
-    parser.add_argument('--gcn_true', type=bool, default=True)
-    parser.add_argument('--buildA_true', type=bool, default=True)
-    parser.add_argument('--gcn_depth', type=int, default=2)
-    parser.add_argument('--dropout_MTGNN', type=float, default=0.3)
-    parser.add_argument('--subgraph_size', type=int, default=2)
-    parser.add_argument('--node_dim', type=int, default=40)
-    parser.add_argument('--dilation_exponential', type=int, default=1)
-    parser.add_argument('--conv_channels', type=int, default=32)
-    parser.add_argument('--residual_channels', type=int, default=32)
-    parser.add_argument('--skip_channels', type=int, default=64)
-    parser.add_argument('--end_channels', type=int, default=128)
-    parser.add_argument('--layers', type=int, default=3)
-    parser.add_argument('--propalpha', type=float, default=0.05)
-    parser.add_argument('--tanhalpha', type=int, default=3)
-    parser.add_argument('--layer_norm_affline', type=bool, default=True)
-
-    # for STWA
-    parser.add_argument('--channels', type=int, default=16)
-    parser.add_argument('--dynamic', type=bool, default=True)
-    parser.add_argument('--memory_size', type=int, default=16)
+    # for GTS
+    # predefined_graph can be true or false
+    # parser.add_argument('--num_nodes', type=int, default=325)
+    # parser.add_argument('--input_dim', type=int, default=1)
+    # parser.add_argument('--hidden_dim', type=int, default=64)
+    # parser.add_argument('--output_dim', type=int, default=1)
+    # parser.add_argument('--num_layers', type=int, default=1)
+    # parser.add_argument('--embed_dim', type=int, default=32) 
+    # parser.add_argument('--cheb_k', default=2, type=int)
+    # parser.add_argument('--cl_decay_steps', type=int, default=1000)
+    # parser.add_argument('--use_curriculum_learning', type=bool, default=True)
+    # parser.add_argument('--filter_type', type=str, default='laplacian')
+    parser.add_argument('--GTS_temperature', type=float, default=0.5)
+    parser.add_argument('--GTS_neighbor_graph_k', type=int, default=5)
 
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
@@ -160,6 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--des', type=str, default='test', help='exp description')
     parser.add_argument('--loss', type=str, default='MSE', help='loss function')
+    parser.add_argument('--loss_with_regularization', type=bool, default=False)
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
 
@@ -168,11 +168,6 @@ if __name__ == '__main__':
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
-
-    # de-stationary projector params
-    parser.add_argument('--p_hidden_dims', type=int, nargs='+', default=[128, 128],
-                        help='hidden layer dimensions of projector (List)')
-    parser.add_argument('--p_hidden_layers', type=int, default=2, help='number of hidden layers in projector')
 
     args = parser.parse_args()
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False

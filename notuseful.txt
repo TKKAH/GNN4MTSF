@@ -1,0 +1,26 @@
+# for MTGNN
+    parser.add_argument('--gcn_true', type=bool, default=True)
+    parser.add_argument('--buildA_true', type=bool, default=True)
+    parser.add_argument('--gcn_depth', type=int, default=2)
+    parser.add_argument('--dropout_MTGNN', type=float, default=0.3)
+    parser.add_argument('--subgraph_size', type=int, default=2)
+    parser.add_argument('--node_dim', type=int, default=40)
+    parser.add_argument('--dilation_exponential', type=int, default=1)
+    parser.add_argument('--conv_channels', type=int, default=32)
+    parser.add_argument('--residual_channels', type=int, default=32)
+    parser.add_argument('--skip_channels', type=int, default=64)
+    parser.add_argument('--end_channels', type=int, default=128)
+    parser.add_argument('--layers', type=int, default=3)
+    parser.add_argument('--propalpha', type=float, default=0.05)
+    parser.add_argument('--tanhalpha', type=int, default=3)
+    parser.add_argument('--layer_norm_affline', type=bool, default=True)
+
+    # for STWA
+    parser.add_argument('--channels', type=int, default=16)
+    parser.add_argument('--dynamic', type=bool, default=True)
+    parser.add_argument('--memory_size', type=int, default=16)
+
+    # de-stationary projector params
+    parser.add_argument('--p_hidden_dims', type=int, nargs='+', default=[128, 128],
+                        help='hidden layer dimensions of projector (List)')
+    parser.add_argument('--p_hidden_layers', type=int, default=2, help='number of hidden layers in projector')
