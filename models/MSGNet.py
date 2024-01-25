@@ -22,20 +22,20 @@ def FFT_for_Period(x, k=2):
 class ScaleGraphBlock(nn.Module):
     def __init__(self, args, adj_mx, device):
         super(ScaleGraphBlock, self).__init__()
-        self.seq_len = configs.seq_len
-        self.pred_len = configs.pred_len
-        self.k = configs.top_k
+        self.seq_len = args.seq_len
+        self.pred_len = args.pred_len
+        self.k = args.MSGNet_FTT_top_k
 
-        self.att0 = Attention_Block(configs.d_model, configs.d_ff,
-                                   n_heads=configs.n_heads, dropout=configs.dropout, activation="gelu")
-        self.norm = nn.LayerNorm(configs.d_model)
+        self.att0 = Attention_Block(args.MSGNet_enc_dim, 
+                                    n_heads=args.MSGNet_n_heads, dropout=args.dropout, activation="gelu")
+        self.norm = nn.LayerNorm(args.MSGNet_enc_dim)
         self.gelu = nn.GELU()
         self.gconv = nn.ModuleList()
         for i in range(self.k):
             self.gconv.append(
-                GraphBlock(configs.c_out , configs.d_model , configs.conv_channel, configs.skip_channel,
-                        configs.gcn_depth , configs.dropout, configs.propalpha ,configs.seq_len,
-                           configs.node_dim))
+                GraphBlock(args.num_nodes , args.MSGNet_enc_dim ,  args.MSGNet_conv_channel,  args.MSGNet_skip_channel,
+                        args.MSGNet_gcn_depth , args.dropout,  args.MSGNet_propalpha ,args.seq_len,
+                           args.MSGNet_node_dim))
 
 
     def forward(self, x):
@@ -46,6 +46,7 @@ class ScaleGraphBlock(nn.Module):
             scale = scale_list[i]
             #Gconv
             x = self.gconv[i](x)
+            # x (B,T,dmodel)
             # paddng
             if (self.seq_len) % scale != 0:
                 length = (((self.seq_len) // scale) + 1) * scale

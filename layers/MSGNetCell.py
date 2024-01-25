@@ -40,9 +40,9 @@ class Predict(nn.Module):
 
 
 class Attention_Block(nn.Module):
-    def __init__(self,  d_model, d_ff=None, n_heads=8, dropout=0.1, activation="relu"):
+    def __init__(self,  d_model, n_heads=8, dropout=0.1, activation="relu"):
         super(Attention_Block, self).__init__()
-        d_ff = d_ff or 4 * d_model
+        d_ff = 4 * d_model
         self.attention = self_attention(FullAttention, d_model, n_heads=n_heads)
         self.conv1 = nn.Conv1d(in_channels=d_model, out_channels=d_ff, kernel_size=1)
         self.conv2 = nn.Conv1d(in_channels=d_ff, out_channels=d_model, kernel_size=1)
@@ -52,6 +52,7 @@ class Attention_Block(nn.Module):
         self.activation = F.relu if activation == "relu" else F.gelu
 
     def forward(self, x, attn_mask=None):
+        # x (batch*(lenght/scale),scale,dmodel)
         new_x, attn = self.attention(
             x, x, x,
             attn_mask=attn_mask
@@ -80,6 +81,7 @@ class self_attention(nn.Module):
 
 
     def forward(self, queries ,keys ,values, attn_mask= None):
+        # x (batch*(lenght/scale),scale,dmodel)
         B, L, _ = queries.shape
         _, S, _ = keys.shape
         H = self.n_heads
@@ -117,7 +119,6 @@ class FullAttention(nn.Module):
             scores.masked_fill_(attn_mask.mask, -np.inf)
         A = self.dropout(torch.softmax(scale * scores, dim=-1))
         V = torch.einsum("bhls,bshd->blhd", A, values)
-        # return V.contiguous()
         if self.output_attention:
             return (V.contiguous(), A)
         else:
@@ -144,8 +145,12 @@ class GraphBlock(nn.Module):
         adp = F.softmax(F.relu(torch.mm(self.nodevec1, self.nodevec2)), dim=1)
         out = x.unsqueeze(1).transpose(2, 3)
         out = self.start_conv(out)
+        #out (b,conv_channel,num_nodes,T)
+        #adp (num_nodes,num_nodes)
         out = self.gelu(self.gconv1(out , adp))
+        # out (b,skip_channel,num_nodes,T)
         out = self.end_conv(out).squeeze()
+        # (b,T,num_nodes)
         out = self.linear(out)
 
         return self.norm(x + out)
@@ -157,7 +162,6 @@ class nconv(nn.Module):
 
     def forward(self,x, A):
         x = torch.einsum('ncwl,vw->ncvl',(x,A))
-        # x = torch.einsum('ncwl,wv->nclv',(x,A)
         return x.contiguous()
 
 
@@ -180,6 +184,8 @@ class mixprop(nn.Module):
         self.alpha = alpha
 
     def forward(self, x, adj):
+        #x (b,conv_channel,num_nodes,T)
+        #adj (num_nodes,num_nodes)
         adj = adj + torch.eye(adj.size(0)).to(x.device)
         d = adj.sum(1)
         h = x
@@ -189,6 +195,7 @@ class mixprop(nn.Module):
             h = self.alpha*x + (1-self.alpha)*self.nconv(h,a)
             out.append(h)
         ho = torch.cat(out,dim=1)
+        # ho (b,(self.gdep+1)*channel,num_nodes,T)
         ho = self.mlp(ho)
         return ho
 

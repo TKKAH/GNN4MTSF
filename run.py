@@ -151,12 +151,18 @@ if __name__ == '__main__':
     parser.add_argument('--GTS_neighbor_graph_k', type=int, default=5)
 
     # for MSGNet
-    #
     # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
     parser.add_argument('--MSGNet_enc_dim', type=int, default=32)
     parser.add_argument('--MSGNet_enc_layers', type=int, default=1)
     parser.add_argument('--MSGNet_Predict_Layer_individual', type=bool, default=True)
+    parser.add_argument('--MSGNet_MSGNet_node_dim', type=int, default=10)
+    parser.add_argument('--MSGNet_conv_channel', type=int, default=32)
+    parser.add_argument('--MSGNet_skip_channel', type=int, default=32)
+    parser.add_argument('--MSGNet_gcn_depth', type=int, default=2)
+    parser.add_argument('--MSGNet_propalpha', type=float, default=0.3)
+    parser.add_argument('--MSGNet_n_heads', type=int, default=8)
+
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
