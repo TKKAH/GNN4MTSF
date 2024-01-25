@@ -43,7 +43,8 @@ if __name__ == '__main__':
     parser.add_argument('--scale_column_wise', type=bool, default=True)
     parser.add_argument('--predefined_graph', type=bool, default=False)
     parser.add_argument('--graph_path', type=str, default='adj_mx_pems_bay.pkl')
-    
+    parser.add_argument('--embed', type=str, default='timeF',
+                        help='time features encoding, options:[timeF, fixed, learned]')
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
@@ -67,9 +68,8 @@ if __name__ == '__main__':
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
     parser.add_argument('--dropout', type=float, default=0.1, help='dropout')
-    parser.add_argument('--embed', type=str, default='timeF',
-                        help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
+
     # 下列为各模型供调的所有参数，注释的参数表示多模型共用 
     # for DCRNN 
     # predefined_graph should be true
@@ -150,6 +150,13 @@ if __name__ == '__main__':
     parser.add_argument('--GTS_temperature', type=float, default=0.5)
     parser.add_argument('--GTS_neighbor_graph_k', type=int, default=5)
 
+    # for MSGNet
+    #
+    # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    parser.add_argument('--MSGNet_enc_dim', type=int, default=32)
+    parser.add_argument('--MSGNet_enc_layers', type=int, default=1)
+    parser.add_argument('--MSGNet_Predict_Layer_individual', type=bool, default=True)
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
