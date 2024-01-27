@@ -162,7 +162,21 @@ if __name__ == '__main__':
     parser.add_argument('--MSGNet_gcn_depth', type=int, default=2)
     parser.add_argument('--MSGNet_propalpha', type=float, default=0.3)
     parser.add_argument('--MSGNet_n_heads', type=int, default=8)
+    parser.add_argument('--MSGNet_FTT_top_k', type=int, default=5)
 
+    # for CrossGNN
+    # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    parser.add_argument('--CrossGNN_e_layers', type=int, default=1)
+    parser.add_argument('--CrossGNN_anti_ood', type=bool, default=True)
+    parser.add_argument('--CrossGNN_FTT_top_k', type=int, default=4)
+    parser.add_argument('--CrossGNN_enc_dmodel', type=int, default=8)
+    parser.add_argument('--CrossGNN_nvechidden', type=int, default=1)
+    parser.add_argument('--CrossGNN_tvechidden', type=int, default=1)
+    parser.add_argument('--CrossGNN_use_tgcn', type=bool, default=True)
+    parser.add_argument('--CrossGNN_use_ngcn', type=bool, default=True)
+    parser.add_argument('--CrossGNN_tgcn_tk', type=int, default=10)
+    
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')

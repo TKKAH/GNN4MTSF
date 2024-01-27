@@ -3,9 +3,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import FCSTGNN, GTS, MTGAT, STSGCN, Autoformer, HiPPOAGCRN, Transformer, TimesNet, Nonstationary_Transformer, DLinear, FEDformer, \
-    Informer, LightTS, Reformer, ETSformer, Pyraformer, PatchTST, MICN, Crossformer, FiLM, iTransformer, \
-    Koopa, TiDE, MTGNN, AGCRN, STWA, DCRNN
+from models import FCSTGNN, GTS, MTGAT, STSGCN, CrossGNN, HiPPOAGCRN, MSGNet, AGCRN, DCRNN
 from utils.graph_load import create_knn_graph, load_graph_data
 from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
 
@@ -15,32 +13,14 @@ class Exp_Basic(object):
         self.args = args
         self.model_dict = {
             'DCRNN': DCRNN,
-            'TimesNet': TimesNet,
-            'Autoformer': Autoformer,
-            'Transformer': Transformer,
-            'Nonstationary_Transformer': Nonstationary_Transformer,
-            'DLinear': DLinear,
-            'FEDformer': FEDformer,
-            'Informer': Informer,
-            'LightTS': LightTS,
-            'Reformer': Reformer,
-            'ETSformer': ETSformer,
-            'PatchTST': PatchTST,
-            'Pyraformer': Pyraformer,
-            'MICN': MICN,
-            'Crossformer': Crossformer,
-            'FiLM': FiLM,
-            'iTransformer': iTransformer,
-            'Koopa': Koopa,
-            'TiDE': TiDE,
-            'MTGNN': MTGNN,
             'AGCRN': AGCRN,
             'HiPPOAGCRN':HiPPOAGCRN,
-            'STWA': STWA,
             'MTGAT':MTGAT,
             'STSGCN':STSGCN,
             'FCSTGNN':FCSTGNN,
-            'GTS':GTS
+            'GTS':GTS,
+            'MSGNet':MSGNet,
+            'CrossGNN':CrossGNN
         }
         self.logger = logger
         self.device = self._acquire_device()
