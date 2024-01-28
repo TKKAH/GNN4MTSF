@@ -3,7 +3,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import FCSTGNN, GTS, MTGAT, STSGCN, CrossGNN, HiPPOAGCRN, MSGNet, AGCRN, DCRNN
+from models import ASTGCN, FCSTGNN, GTS, MTGAT, STSGCN, CrossGNN, HiPPOAGCRN, MSGNet, AGCRN, DCRNN
 from utils.graph_load import create_knn_graph, load_graph_data
 from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
 
@@ -20,7 +20,8 @@ class Exp_Basic(object):
             'FCSTGNN':FCSTGNN,
             'GTS':GTS,
             'MSGNet':MSGNet,
-            'CrossGNN':CrossGNN
+            'CrossGNN':CrossGNN,
+            'ASTGCN':ASTGCN
         }
         self.logger = logger
         self.device = self._acquire_device()

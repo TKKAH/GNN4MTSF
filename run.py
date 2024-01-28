@@ -177,6 +177,16 @@ if __name__ == '__main__':
     parser.add_argument('--CrossGNN_use_ngcn', type=bool, default=True)
     parser.add_argument('--CrossGNN_tgcn_tk', type=int, default=10)
     
+    # for ASTGCN
+    # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    # parser.add_argument('--num_nodes', type=int, default=325)
+    parser.add_argument('--ASTGCN_cheb_k', default=3, type=int)
+    parser.add_argument('--ASTGCN_input_dim', default=1, type=int)
+    parser.add_argument('--ASTGCN_nb_chev_out_dim', default=64, type=int)
+    parser.add_argument('--ASTGCN_nb_time_out_dim', default=64, type=int)
+    parser.add_argument('--ASTGCN_nb_block', default=2, type=int)
+    
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
