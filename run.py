@@ -186,7 +186,23 @@ if __name__ == '__main__':
     parser.add_argument('--ASTGCN_nb_chev_out_dim', default=64, type=int)
     parser.add_argument('--ASTGCN_nb_time_out_dim', default=64, type=int)
     parser.add_argument('--ASTGCN_nb_block', default=2, type=int)
-    
+
+    # for MTGNN
+    # parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    # parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    # parser.add_argument('--num_nodes', type=int, default=325)
+    parser.add_argument('--MTGNN_top_k_graph', type=int, default=2)
+    parser.add_argument('--MTGNN_node_embedding_dim', type=int, default=40)
+    parser.add_argument('--MTGNN_input_dim', type=int, default=1)
+    parser.add_argument('--MTGNN_residual_channels', type=int, default=32)
+    parser.add_argument('--MTGNN_skip_channels', type=int, default=64)
+    parser.add_argument('--MTGNN_conv_channels', type=int, default=32)
+    parser.add_argument('--MTGNN_layers', type=int, default=3)
+    parser.add_argument('--MTGNN_propalpha', type=float, default=0.05)
+    parser.add_argument('--MTGNN_gcn_depth', type=int, default=2)
+    parser.add_argument('--MTGNN_dilation_exponential', type=int, default=1)
+    parser.add_argument('--MTGNN_end_channels', type=int, default=128)
+
     # optimization
     parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
@@ -199,7 +215,7 @@ if __name__ == '__main__':
     parser.add_argument('--loss_with_regularization', type=bool, default=False)
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
-
+    
     # GPU
     parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
