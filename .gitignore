@@ -2,4 +2,3 @@
 venv/
 dataset/
 **/__pycache__
-notuse_model/
