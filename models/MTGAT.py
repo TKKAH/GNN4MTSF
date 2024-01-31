@@ -10,6 +10,9 @@ class Model(nn.Module):
         self,
         args, adj_mx, device
     ):
+        assert adj_mx is None
+        assert args.output_dim==1
+        assert args.input_dim==1
         super(Model, self).__init__()
 
         self.conv = ConvLayer(args.num_nodes, args.MTGAT_kernel_size)
@@ -20,8 +23,6 @@ class Model(nn.Module):
 
     def forward(self, x, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):
         # x shape (batch_size, seq_len, num_sensor, input_dim)
-        if x.shape[-1]!=1:
-            raise Exception('MTGAT Model only concern 3-d data!')
         x = torch.squeeze(x, dim=-1)
 
         x = self.conv(x)

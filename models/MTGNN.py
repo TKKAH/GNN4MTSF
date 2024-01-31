@@ -3,6 +3,8 @@ from layers.MTGNN_layer import *
 
 class Model(nn.Module):
     def __init__(self, args, adj_mx, device):
+        assert adj_mx is None
+        assert args.output_dim==1 
         super(Model, self).__init__()
         self.gcn_true = True
         self.buildA_true = True
@@ -16,7 +18,7 @@ class Model(nn.Module):
         self.gconv1 = nn.ModuleList()
         self.gconv2 = nn.ModuleList()
         self.norm = nn.ModuleList()
-        self.start_conv = nn.Conv2d(in_channels=args.MTGNN_input_dim,
+        self.start_conv = nn.Conv2d(in_channels=args.input_dim,
                                     out_channels=args.MTGNN_residual_channels,
                                     kernel_size=(1, 1))
         self.gc = graph_constructor(args.num_nodes, args.MTGNN_top_k_graph, args.MTGNN_node_embedding_dim, 'cuda:0')
@@ -72,11 +74,11 @@ class Model(nn.Module):
                                              kernel_size=(1,1),
                                              bias=True)
         if self.seq_length > self.receptive_field:
-            self.skip0 = nn.Conv2d(in_channels=args.MTGNN_input_dim, out_channels=args.MTGNN_skip_channels, kernel_size=(1, self.seq_length), bias=True)
+            self.skip0 = nn.Conv2d(in_channels=args.input_dim, out_channels=args.MTGNN_skip_channels, kernel_size=(1, self.seq_length), bias=True)
             self.skipE = nn.Conv2d(in_channels=args.MTGNN_residual_channels, out_channels=args.MTGNN_skip_channels, kernel_size=(1, self.seq_length-self.receptive_field+1), bias=True)
 
         else:
-            self.skip0 = nn.Conv2d(in_channels=args.MTGNN_input_dim, out_channels=args.MTGNN_skip_channels, kernel_size=(1, self.receptive_field), bias=True)
+            self.skip0 = nn.Conv2d(in_channels=args.input_dim, out_channels=args.MTGNN_skip_channels, kernel_size=(1, self.receptive_field), bias=True)
             self.skipE = nn.Conv2d(in_channels=args.MTGNN_residual_channels, out_channels=args.MTGNN_skip_channels, kernel_size=(1, 1), bias=True)
 
 

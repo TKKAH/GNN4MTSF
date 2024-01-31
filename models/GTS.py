@@ -41,14 +41,14 @@ def gumbel_softmax(logits, temperature, hard=False, eps=1e-10):
 
 class Seq2SeqAttrs:
     def __init__(self, args, adj_mx, device):
-        self.max_diffusion_step = args.cheb_k
-        self.cl_decay_steps = args.cl_decay_steps
-        self.use_curriculum_learning = args.use_curriculum_learning
+        self.max_diffusion_step = args.GTS_cheb_k
+        self.cl_decay_steps = args.GTS_cl_decay_steps
+        self.use_curriculum_learning = args.GTS_use_curriculum_learning
         self.num_nodes = args.num_nodes
-        self.num_rnn_layers = args.num_layers
+        self.num_rnn_layers = args.GTS_num_layers
         self.input_dim = args.input_dim
         self.output_dim = args.output_dim
-        self.hidden_dim = args.hidden_dim
+        self.hidden_dim = args.GTS_hidden_dim
         self.hidden_state_size = self.num_nodes * self.hidden_dim
         self.filter_type = args.GTS_filter_type
         self.seq_len = args.seq_len
@@ -124,6 +124,8 @@ class DecoderModel(nn.Module, Seq2SeqAttrs):
 
 class Model(nn.Module, Seq2SeqAttrs):
     def __init__(self, args, adj_mx, device):
+        assert adj_mx is not None
+        assert args.output_dim==1
         super().__init__()
         Seq2SeqAttrs.__init__(self, args, adj_mx[0], device)
         self.node_fea=adj_mx[1]

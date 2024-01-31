@@ -7,11 +7,9 @@ from layers.FCSTGNNCell import Feature_extractor_1DCNN_RUL, GraphConvpoolMPNN_bl
 
 class Model(nn.Module):
     def __init__(self, args, adj_mx, device):
+        assert adj_mx is None
+        assert args.output_dim==1
         super(Model, self).__init__()
-        if adj_mx is not None:
-            raise Exception('STSGCN Model not need a pre-defined graph!')
-        if args.features!='MS':
-            raise Exception('FCSTGNN Model only concern multivariate predict univariate')
         self.horizon=args.pred_len
         self.nonlin_map = Feature_extractor_1DCNN_RUL(1, args.FCSTGNN_1DCNN_hidden_dim, args.FCSTGNN_1DCNN_output_dim,kernel_size=args.FCSTGNN_conv_kernel)
         self.nonlin_map_conv_out=args.input_dim-args.FCSTGNN_conv_kernel+4
@@ -22,7 +20,7 @@ class Model(nn.Module):
 
         self.positional_encoding = PositionalEncoding(2*args.FCSTGNN_hidden_dim,0.1,max_len=5000)
 
-        self.MPNN1 = GraphConvpoolMPNN_block_v6(2*args.FCSTGNN_hidden_dim, args.FCSTGNN_hidden_dim, args.num_node, 
+        self.MPNN1 = GraphConvpoolMPNN_block_v6(2*args.FCSTGNN_hidden_dim, args.FCSTGNN_hidden_dim, args.num_nodes, 
         time_window_size=args.FCSTGNN_moving_window, stride=1, decay = args.FCSTGNN_decay, pool_choice=args.FCSTGNN_pooling_choice)
 
 
@@ -30,7 +28,7 @@ class Model(nn.Module):
         for t in range(self.horizon):
             self.predictLayer.append(
                 output_layer(
-                    num_of_vertices=args.num_node,
+                    num_of_vertices=args.num_nodes,
                     history=args.seq_len+1-args.FCSTGNN_moving_window,
                     in_dim=args.FCSTGNN_hidden_dim,
                     hidden_dim=args.FCSTGNN_out_layer_dim,

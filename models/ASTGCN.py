@@ -166,11 +166,13 @@ class ASTGCN_block(nn.Module):
 class Model(nn.Module):
 
     def __init__(self, args, adj_mx, device):
+        assert adj_mx is not None
+        assert args.output_dim==1
         super(Model, self).__init__()
         L_tilde = scaled_Laplacian(adj_mx)
         cheb_polynomials = [torch.from_numpy(i).type(torch.FloatTensor).to(device) for i in cheb_polynomial(L_tilde, args.ASTGCN_cheb_k)]
         
-        self.BlockList = nn.ModuleList([ASTGCN_block(args.ASTGCN_input_dim,device,args,cheb_polynomials)])
+        self.BlockList = nn.ModuleList([ASTGCN_block(args.input_dim,device,args,cheb_polynomials)])
 
         self.BlockList.extend([ASTGCN_block(args.ASTGCN_nb_time_out_dim,device, args,cheb_polynomials) for _ in range(args.ASTGCN_nb_block-1)])
 

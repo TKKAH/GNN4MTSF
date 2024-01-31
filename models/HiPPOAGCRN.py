@@ -45,19 +45,21 @@ class AVWDCRNN(nn.Module):
 
 class Model(nn.Module):
     def __init__(self, args, adj_mx, device):
+        assert adj_mx==None
+        assert args.output_dim==1
         super(Model, self).__init__()
         self.num_node = args.num_nodes
         self.input_dim = args.input_dim
-        self.hidden_dim = args.hidden_dim
+        self.hidden_dim = args.HiPPOAGCRN_hidden_dim
         self.output_dim = args.output_dim
         self.horizon = args.pred_len 
-        self.num_layers = args.num_layers
-        self.embeded_dim = args.embed_dim
+        self.num_layers = args.HiPPOAGCRN_num_layers
+        self.embeded_dim = args.HiPPOAGCRN_embed_dim
 
-        self.node_embeddings = nn.Parameter(torch.randn(self.num_node, args.embed_dim), requires_grad=True)
+        self.node_embeddings = nn.Parameter(torch.randn(self.num_node, args.HiPPOAGCRN_embed_dim), requires_grad=True)
 
-        self.encoder = AVWDCRNN(args.num_nodes, args.input_dim, args.hidden_dim, args.cheb_k,
-                                args.embed_dim, args.HiPPOorder,args.num_layers)
+        self.encoder = AVWDCRNN(args.num_nodes, args.input_dim, args.HiPPOAGCRN_hidden_dim, args.HiPPOAGCRN_cheb_k,
+                                args.HiPPOAGCRN_embed_dim, args.HiPPOorder,args.HiPPOAGCRN_num_layers)
 
         self.end_conv = nn.Conv2d(1, args.pred_len * self.output_dim, kernel_size=(1, self.hidden_dim), bias=True)
 

@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 
 class MTS_Dataset(Dataset):
     def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
-                 features, target, scale, scale_type, logger, scale_column_wise):
+                scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
         self.seq_len = size[0]
@@ -24,8 +24,6 @@ class MTS_Dataset(Dataset):
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
 
-        self.features = features
-        self.target = target
         self.scale = scale
         self.scale_type = scale_type
         self.scale_column_wise = scale_column_wise
@@ -49,12 +47,9 @@ class MTS_Dataset(Dataset):
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
         df_data = None
-        if self.features == 'M' or self.features == 'MS':
-            cols_data = df_raw.columns[1:]
-            df_data = df_raw[cols_data]
-        elif self.features == 'S':
-            #  [[]] be Series not DataFrame
-            df_data = df_raw[[self.target]]
+        
+        cols_data = df_raw.columns[1:]
+        df_data = df_raw[cols_data]
         # Normalize the overall data based on the training set data
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
@@ -98,7 +93,7 @@ class MTS_Dataset(Dataset):
 
 class MSTS_Dataset(Dataset):
     def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
-                 features, target, scale, scale_type, logger, scale_column_wise):
+                scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
         self.seq_len = size[0]
@@ -108,8 +103,6 @@ class MSTS_Dataset(Dataset):
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
 
-        self.features = features
-        self.target = target
         self.scale = scale
         self.scale_type = scale_type
         self.scale_column_wise = scale_column_wise

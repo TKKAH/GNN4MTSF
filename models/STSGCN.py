@@ -7,11 +7,9 @@ from layers.STSGCNCell import STSGCL, output_layer
 
 class Model(nn.Module):
     def __init__(self, args, adj_mx, device):
+        assert adj_mx is not None
+        assert args.output_dim==1
         super(Model, self).__init__()
-        if adj_mx is None:
-            raise Exception('STSGCN Model need a pre-defined graph!')
-        if args.features=='M':
-            raise Exception('STSGCN Model not concern multivariate predict multivariate')
         self.adj = self.construct_adj(adj_mx,args.STSGCN_strides)
         self.num_of_vertices = args.num_nodes
         self.hidden_dims = args.STSGCN_hidden_dims

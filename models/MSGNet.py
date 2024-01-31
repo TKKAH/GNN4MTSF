@@ -78,10 +78,9 @@ class ScaleGraphBlock(nn.Module):
 class Model(nn.Module):
     def __init__(self, args, adj_mx, device):
         super(Model, self).__init__()
-        if adj_mx is not None:
-            raise Exception('STSGCN Model need a pre-defined graph!')
-        if args.features=='M':
-            raise Exception('STSGCN Model not concern multivariate predict multivariate')
+        assert adj_mx is None
+        assert args.output_dim==1
+        assert args.input_dim==1
         
         self.device = device
         self.model = nn.ModuleList([ScaleGraphBlock(args, adj_mx, device) for _ in range(args.MSGNet_enc_layers)])

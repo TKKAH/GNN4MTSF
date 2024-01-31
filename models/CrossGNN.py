@@ -233,6 +233,9 @@ class Model(nn.Module):
     CrossGNN
     '''
     def __init__(self, args, adj_mx, device):
+        assert adj_mx is None
+        assert args.output_dim==1
+        assert args.input_dim==1
         super(Model, self).__init__()
         self.seq_len = args.seq_len
         self.pred_len = args.pred_len
