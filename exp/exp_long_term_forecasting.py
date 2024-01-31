@@ -32,11 +32,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, ...], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.cat([batch_y[:, :0, ...], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self._generate_outputs(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
-                f_dim = -1 if self.args.features == 'MS' else 0
+                f_dim = 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
 
@@ -93,14 +93,14 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 # decoder input
                 # 第一个维度是Batch
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, ...], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.cat([batch_y[:, :0, ...], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
                         outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
                                                  batches_seen=i+train_steps * epoch)
                         outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
-                        f_dim = -1 if self.args.features == 'MS' else 0
+                        f_dim =  0
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
                         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                         loss = criterion(outputs, batch_y)+regularization_loss
@@ -109,7 +109,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
                                              batches_seen=i + train_steps * epoch)
                     outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
-                    f_dim = -1 if self.args.features == 'MS' else 0
+                    f_dim =  0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
                     batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                     loss = criterion(outputs, batch_y)+regularization_loss
@@ -175,11 +175,11 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 # decoder input
                 dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...]).float()
-                dec_inp = torch.cat([batch_y[:, :self.args.label_len, ...], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.cat([batch_y[:, :0, ...], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self._generate_outputs(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
-                f_dim = -1 if self.args.features == 'MS' else 0
+                f_dim =  0
                 outputs = outputs[:, -self.args.pred_len:, :]
                 batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
