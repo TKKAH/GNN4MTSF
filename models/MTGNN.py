@@ -140,8 +140,8 @@ class Model(nn.Module):
 
 
         # B, T, N, C
-        output = output * (stdev[:, 0, :, :].unsqueeze(1).repeat(1, self.horizon, 1,1))
-        output = output + (means[:, 0, :, :].unsqueeze(1).repeat(1, self.horizon, 1,1))
+        output = output * (stdev[:, 0, :, -1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
+        output = output + (means[:, 0, :, -1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
         return output
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):

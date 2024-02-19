@@ -134,14 +134,13 @@ class MSTS_Dataset(Dataset):
         df_stamp = pd.DataFrame(np_raw['dates'][border1:border2])
         df_stamp.columns = df_stamp.columns.astype(str)
         df_stamp = df_stamp.rename(columns={'0': 'date'})
-        df_stamp['date'] = pd.to_datetime(df_stamp.date)
+        df_stamp['date'] = pd.to_datetime(df_stamp.date,format='%d-%m-%Y')
         data_stamp = None
         if self.timeenc == 0:
             data_stamp = time_features_no_encode(df_stamp, self.freq)
         elif self.timeenc == 1:
             data_stamp = time_features_encode(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
             data_stamp = data_stamp.transpose(1, 0)
-
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp

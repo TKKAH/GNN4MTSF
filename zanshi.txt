@@ -1,0 +1,17 @@
+python -u run.py 
+--task_name long_term_forecast 
+--is_training 1 
+--model_id 
+--model AGCRN
+--data HKda
+---root_path dataset\Exit-and-entry
+--data_path HK_Daily_Arrivals.npz
+--predefined_graph False
+--graph_path None
+-seq_len 31
+--pred_len 31
+--num_nodes 14
+--input_dim 4
+
+python -u run.py --task_name long_term_forecast --is_training 1 --model_id AGCRN_31_31 --model AGCRN --data HKda --root_path dataset\Exit-and-entry --data_path HK_Daily_Arrivals.npz --graph_path None --freq d --seq_len 31 --pred_len 31 --num_nodes 14 --input_dim 4 
+python -u run.py --task_name long_term_forecast --is_training 0 --model_id AGCRN_31_31 --model AGCRN --data HKda --root_path dataset\Exit-and-entry --data_path HK_Daily_Arrivals.npz --graph_path None --freq d --seq_len 31 --pred_len 31 --num_nodes 14 --input_dim 4 

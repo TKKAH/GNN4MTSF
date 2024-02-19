@@ -28,17 +28,17 @@ if __name__ == '__main__':
     parser.add_argument('--data', type=str, required=True, default='ETTh1', help='dataset type')
     parser.add_argument('--root_path', type=str, required=True,help='root path of the data file')
     parser.add_argument('--data_path', type=str, required=True,help='data file')
-    parser.add_argument('--freq', type=str, default='h',
+    parser.add_argument('--freq', required=True,type=str, default='h',
                         help='freq for time features encoding, options:[s:secondly, t:minutely, h:hourly, d:daily, b:business days, w:weekly, m:monthly], you can also use more detailed freq like 15min or 3h')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/', help='location of model checkpoints')
     parser.add_argument('--split_type', type=str, default='amount',help='split dataset type')
     parser.add_argument('--train_ratio', type=float, default=0.7,help='train_ratio')
     parser.add_argument('--test_ratio', type=float, default=0.2,help='test_ratio')
     parser.add_argument('--scale', type=bool, default=True,help='scale data')
-    parser.add_argument('--scale_type', type=str, default='std',help='scale type')
+    parser.add_argument('--scale_type', type=str, default='cmax',help='scale type')
     parser.add_argument('--scale_column_wise', type=bool, default=True,help='scale_column_wise')
-    parser.add_argument('--predefined_graph', type=bool, required=True,help='input graph or not')
-    parser.add_argument('--graph_path', type=str, default=None,help='the graph adj path')
+    parser.add_argument('--predefined_graph',action='store_true',default=False,help='input graph or not')
+    parser.add_argument('--graph_path', type=str, required=True,default=None,help='the graph adj path')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     
@@ -169,14 +169,14 @@ if __name__ == '__main__':
     parser.add_argument('--MTGNN_end_channels', type=int, default=128)
 
     # optimization
-    parser.add_argument('--num_workers', type=int, default=10, help='data loader num workers')
+    parser.add_argument('--num_workers', type=int, default=4, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
     parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
-    parser.add_argument('--loss', type=str, default='MSE', help='loss function')
-    parser.add_argument('--loss_with_regularization', type=bool, default=False)
+    parser.add_argument('--loss', type=str, default='MAE', help='loss function')
+    parser.add_argument('--loss_with_regularization', action='store_true',default=False)
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     
@@ -194,7 +194,6 @@ if __name__ == '__main__':
         device_ids = args.devices.split(',')
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
-
     # logging
     log_dir = get_log_dir(args)
     logger = get_logger(log_dir, __name__, 'info.log', level='INFO')

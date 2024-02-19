@@ -78,7 +78,6 @@ class ColumnMinMaxScaler():
         self.min = min
         self.min_max = max - self.min
         self.min_max[self.min_max == 0] = 1
-        print(self.min_max)
 
     def transform(self, data):
         return (data - self.min) / self.min_max

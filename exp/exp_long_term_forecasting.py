@@ -31,14 +31,14 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
                 # decoder input
-                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...]).float()
-                dec_inp = torch.cat([batch_y[:, :0, ...], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...,-1:]).float()
+                dec_inp = torch.cat([batch_y[:, :0, ...,-1:], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self._generate_outputs(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                 f_dim = 0
                 outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                batch_y = batch_y[:, -self.args.pred_len:, f_dim:,-1:].to(self.device)
 
                 pred = outputs.detach().cpu()
                 true = batch_y.detach().cpu()
@@ -89,11 +89,10 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 batch_y = batch_y.float().to(self.device)
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
-
                 # decoder input
                 # 第一个维度是Batch
-                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...]).float()
-                dec_inp = torch.cat([batch_y[:, :0, ...], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...,-1:]).float()
+                dec_inp = torch.cat([batch_y[:, :0, ...,-1:], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 if self.args.use_amp:
                     with torch.cuda.amp.autocast():
@@ -102,7 +101,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                         outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                         f_dim =  0
                         outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                        batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                        batch_y = batch_y[:, -self.args.pred_len:, f_dim:,-1:].to(self.device)
                         loss = criterion(outputs, batch_y)+regularization_loss
                         train_loss.append(loss.item())
                 else:
@@ -111,7 +110,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                     f_dim =  0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]
-                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
+                    batch_y = batch_y[:, -self.args.pred_len:, f_dim:,-1:].to(self.device)
                     loss = criterion(outputs, batch_y)+regularization_loss
                     train_loss.append(loss.item())
 
@@ -158,7 +157,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
         preds = []
         trues = []
-        folder_path = './test_results/' + setting + '/'
+        folder_path = './results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
@@ -174,14 +173,14 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
                 # decoder input
-                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...]).float()
-                dec_inp = torch.cat([batch_y[:, :0, ...], dec_inp], dim=1).float().to(self.device)
+                dec_inp = torch.zeros_like(batch_y[:, -self.args.pred_len:, ...,-1:]).float()
+                dec_inp = torch.cat([batch_y[:, :0, ...,-1:], dec_inp], dim=1).float().to(self.device)
                 # encoder - decoder
                 outputs = self._generate_outputs(batch_x, batch_x_mark, dec_inp, batch_y_mark)
                 outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                 f_dim =  0
                 outputs = outputs[:, -self.args.pred_len:, :]
-                batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
+                batch_y = batch_y[:, -self.args.pred_len:, :,-1:].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
                 if test_data.scale and self.args.inverse:
@@ -202,25 +201,22 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                     if test_data.scale and self.args.inverse:
                         shape = input.shape
                         input = test_data.inverse_transform(input.squeeze(0)).reshape(shape)
-                    gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
-                    pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
+                    gt = np.concatenate((input[0, :, :,-1], true[0, :, :,-1]), axis=0)
+                    pd = np.concatenate((input[0, :, :,-1], pred[0, :, :,-1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
 
         preds = np.array(preds)
         trues = np.array(trues)
-        self.logger.info('test shape:', preds.shape, trues.shape)
+        self.logger.info('test shape: %s, %s', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
-        self.logger.info('test shape:', preds.shape, trues.shape)
+        self.logger.info('test shape: %s, %s', preds.shape, trues.shape)
 
         # result save
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         self.logger.info('mse:{}, mae:{}'.format(mse, mae))
-        f = open("result_long_term_forecast.txt", 'a')
+        f = open(os.path.join(folder_path,"result_long_term_forecast.txt"), 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}'.format(mse, mae))
         f.write('\n')

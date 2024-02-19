@@ -39,7 +39,7 @@ def log_args(args, logger):
 def get_model_args(args):
     args_dict = vars(args)
     model_args = {key: value for key, value in args_dict.items() if key.startswith(args.model)}
-    model_args_str = None
+    model_args_str = ''
     for key, value in model_args.items():
         model_args_str += f'{key}_{value}_'
     model_args_str = model_args_str.rstrip('_')  # 去掉最后一个逗号和空格

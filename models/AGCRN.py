@@ -76,10 +76,9 @@ class Model(nn.Module):
         output = self.end_conv((output))                         #B, T*C, N, 1
         output = output.squeeze(-1).reshape(-1, self.horizon, self.output_dim, self.num_node)
         output = output.permute(0, 1, 3, 2)
-
         #B, T, N, C
-        output = output * (stdev[:, 0, :, :].unsqueeze(1).repeat(1, self.horizon, 1,1))
-        output = output + (means[:, 0, :, :].unsqueeze(1).repeat(1, self.horizon, 1,1))
+        output = output * (stdev[:, 0, :, -1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
+        output = output + (means[:, 0, :,-1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
         return output
 
 

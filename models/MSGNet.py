@@ -122,10 +122,10 @@ class Model(nn.Module):
         dec_out = dec_out.unsqueeze(dim=-1)
         # De-Normalization from Non-stationary Transformer
         dec_out = dec_out * \
-                  (stdev[:, 0, :,:].unsqueeze(1).repeat(
+                  (stdev[:, 0, :,-1:].unsqueeze(1).repeat(
                       1, self.pred_len, 1,1))
         dec_out = dec_out + \
-                  (means[:, 0, :,:].unsqueeze(1).repeat(
+                  (means[:, 0, :,-1:].unsqueeze(1).repeat(
                       1, self.pred_len, 1,1))
 
         return dec_out[:, -self.pred_len:, :,:]
