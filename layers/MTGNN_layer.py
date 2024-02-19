@@ -47,37 +47,6 @@ class mixprop(nn.Module):
         ho = self.mlp(ho)
         return ho
 
-
-
-
-    def forward(self,x):
-        #adj = adj + torch.eye(adj.size(0)).to(x.device)
-        #d = adj.sum(1)
-        x1 = torch.tanh(self.lin1(x))
-        x2 = torch.tanh(self.lin2(x))
-        adj = self.nconv(x1.transpose(2,1),x2)
-        adj0 = torch.softmax(adj, dim=2)
-        adj1 = torch.softmax(adj.transpose(2,1), dim=2)
-
-        h = x
-        out = [h]
-        for i in range(self.gdep):
-            h = self.alpha*x + (1-self.alpha)*self.nconv(h,adj0)
-            out.append(h)
-        ho = torch.cat(out,dim=1)
-        ho1 = self.mlp1(ho)
-
-
-        h = x
-        out = [h]
-        for i in range(self.gdep):
-            h = self.alpha * x + (1 - self.alpha) * self.nconv(h, adj1)
-            out.append(h)
-        ho = torch.cat(out, dim=1)
-        ho2 = self.mlp2(ho)
-
-        return ho1+ho2
-
 class dilated_inception(nn.Module):
     def __init__(self, cin, cout, dilation_factor=2):
         super(dilated_inception, self).__init__()

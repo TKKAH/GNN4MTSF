@@ -49,7 +49,7 @@ class Dot_Graph_Construction_weights(nn.Module):
 
         Adj = tr.bmm(node_features, node_features_1)
         # adj (bs,N,N)
-        eyes_like = tr.eye(N).repeat(bs, 1, 1).cuda()
+        eyes_like = tr.eye(N).repeat(bs, 1, 1)
         eyes_like_inf = eyes_like * 1e8
         Adj = F.leaky_relu(Adj - eyes_like_inf)
         Adj = F.softmax(Adj, dim=-1)
@@ -103,7 +103,7 @@ class PositionalEncoding(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
 
         # Compute the positional encodings once in log space.
-        pe = tr.zeros(max_len, d_model).cuda()
+        pe = tr.zeros(max_len, d_model)
         position = tr.arange(0, max_len).unsqueeze(1)
         div_term = tr.exp(tr.arange(0, d_model, 2) *
                              -(math.log(100.0) / d_model))
@@ -177,7 +177,7 @@ def Conv_GraphST(input, time_window_size, stride):
     return y_
 def Mask_Matrix(num_node, time_length, decay_rate):
 
-    Adj = tr.ones(num_node * time_length, num_node * time_length).cuda()
+    Adj = tr.ones(num_node * time_length, num_node * time_length)
     for i in range(time_length):
         v = 0
         for r_i in range(i,time_length):

@@ -4,7 +4,7 @@ import os
 import torch
 from exp.exp_long_term_forecasting import Exp_Long_Term_Forecast
 from utils.logger import get_logger, get_log_dir
-from utils.print_args import get_model_args, log_args
+from utils.print_args import log_args
 import random
 import numpy as np
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('--seq_len', type=int, required=True, help='input sequence length')
     parser.add_argument('--pred_len', type=int, required=True, help='prediction sequence length')
     parser.add_argument('--num_nodes', type=int, required=True,help='time series number')
-    parser.add_argument('--inverse', action='store_true', help='inverse output data', default=False)
+    parser.add_argument('--inverse', type=bool, help='inverse output data', default=True)
     parser.add_argument('--input_dim', type=int, required=True,help='the input dim of one nodes in ont timestamp')
     parser.add_argument('--output_dim', type=int, default=1,help='must be one')
     parser.add_argument('--dropout', type=float, default=0.1, help='dropout,attention in different model use different')
@@ -212,7 +212,7 @@ if __name__ == '__main__':
         for ii in range(args.itr):
             # setting record of experiments
             exp = Exp(args, logger)  # set experiments
-            setting = '{}_{}_{}_{}_inputdim{}_sl{}_pl{}_{}_{}'.format(
+            setting = '{}_{}_{}_{}_inputdim{}_sl{}_pl{}_{}'.format(
                 args.task_name,
                 args.model_id,
                 args.model,
@@ -220,7 +220,6 @@ if __name__ == '__main__':
                 args.input_dim,
                 args.seq_len,
                 args.pred_len,
-                get_model_args(args),
                 ii)
 
             logger.info('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
@@ -231,7 +230,7 @@ if __name__ == '__main__':
             torch.cuda.empty_cache()
     else:
         ii = 0
-        setting = '{}_{}_{}_{}_inputdim{}_sl{}_pl{}_{}_{}'.format(
+        setting = '{}_{}_{}_{}_inputdim{}_sl{}_pl{}_{}'.format(
                 args.task_name,
                 args.model_id,
                 args.model,
@@ -239,7 +238,6 @@ if __name__ == '__main__':
                 args.input_dim,
                 args.seq_len,
                 args.pred_len,
-                get_model_args(args),
                  ii)
 
         exp = Exp(args, logger)  # set experiments

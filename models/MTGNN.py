@@ -21,7 +21,7 @@ class Model(nn.Module):
         self.start_conv = nn.Conv2d(in_channels=args.input_dim,
                                     out_channels=args.MTGNN_residual_channels,
                                     kernel_size=(1, 1))
-        self.gc = graph_constructor(args.num_nodes, args.MTGNN_top_k_graph, args.MTGNN_node_embedding_dim, 'cuda:0')
+        self.gc = graph_constructor(args.num_nodes, args.MTGNN_top_k_graph, args.MTGNN_node_embedding_dim, device)
 
         self.seq_length = args.seq_len
         kernel_size = 7
@@ -82,8 +82,7 @@ class Model(nn.Module):
             self.skipE = nn.Conv2d(in_channels=args.MTGNN_residual_channels, out_channels=args.MTGNN_skip_channels, kernel_size=(1, 1), bias=True)
 
 
-        self.idx = torch.arange(self.num_nodes).to('cuda:0')
-
+        self.idx = torch.arange(self.num_nodes).to(device)
 
     def forecast(self, input,idx=None):
         # BTNC
@@ -124,8 +123,7 @@ class Model(nn.Module):
             s = x
             s = self.skip_convs[i](s)
             skip = s + skip     #(B,C,N,1)
-
-            x = self.gconv1[i](x, adp)+self.gconv2[i](x, adp.transpose(1,0))
+            x = self.gconv1[i](x,adp)+self.gconv2[i](x,adp.transpose(1,0))
 
             x = x + residual[:, :, :, -x.size(3):]
             if idx is None:
@@ -138,10 +136,10 @@ class Model(nn.Module):
         x = F.relu(self.end_conv_1(x))
         x = self.end_conv_2(x)
 
-
+        output=x
         # B, T, N, C
-        output = output * (stdev[:, 0, :, -1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
-        output = output + (means[:, 0, :, -1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
+        output = output * (stdev[:, 0, :, -1:].unsqueeze(1).repeat(1, self.pred_len, 1,1))
+        output = output + (means[:, 0, :, -1:].unsqueeze(1).repeat(1, self.pred_len, 1,1))
         return output
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):
