@@ -106,7 +106,7 @@ class single_scale_gnn(nn.Module):
         self.ln = nn.ModuleList()
         self.channels = args.num_nodes
         self.dropout=args.dropout
-        self.device='cuda:'+str(args.gpu)
+        self.device=device
         self.GraphforPre = False
         self.tvechidden = args.CrossGNN_tvechidden
         self.tanh=nn.Tanh()

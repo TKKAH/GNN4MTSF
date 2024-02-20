@@ -96,7 +96,7 @@ class Model(nn.Module):
         self.seq2pred = Predict(args.MSGNet_Predict_Layer_individual,args.num_nodes,
                                 args.seq_len, args.pred_len, args.dropout)
 
-
+        self.pred_len=args.pred_len
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):
         # x_enc (b,T,N,dim)
         # Normalization from Non-stationary Transformer

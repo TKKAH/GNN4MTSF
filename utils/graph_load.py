@@ -18,7 +18,7 @@ def load_graph_data(pickle_file):
     except Exception as e:
         print('Unable to load data ', pickle_file, ':', e)
         raise
-    return pickle_data[2]
+    return pickle_data
 
 def create_knn_graph(root_path,data_path,k):
     if data_path.endswith(".csv"):

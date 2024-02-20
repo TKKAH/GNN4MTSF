@@ -19,7 +19,7 @@ class Model(nn.Module):
         self.feature_gat = FeatureAttentionLayer(args.num_nodes, args.seq_len, args.dropout, args.MTGAT_alpha, args.MTGAT_feat_gat_embed_dim, args.MTGAT_use_gatv2)
         self.temporal_gat = TemporalAttentionLayer(args.num_nodes, args.seq_len, args.dropout, args.MTGAT_alpha, args.MTGAT_time_gat_embed_dim, args.MTGAT_use_gatv2)
         self.gru = GRULayer(3 * args.num_nodes, args.MTGAT_gru_hid_dim, args.MTGAT_gru_n_layers, args.dropout)
-        self.forecasting_model = Forecasting_Model(args.preq_len, args.MTGAT_gru_hid_dim,args.MTGAT_forecast_hid_dim, args.num_nodes, args.MTGAT_forecast_n_layers, args.dropout)
+        self.forecasting_model = Forecasting_Model(args.pred_len, args.MTGAT_gru_hid_dim,args.MTGAT_forecast_hid_dim, args.num_nodes, args.MTGAT_forecast_n_layers, args.dropout)
 
     def forward(self, x, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):
         # x shape (batch_size, seq_len, num_sensor, input_dim)

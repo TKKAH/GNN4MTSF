@@ -24,7 +24,10 @@ def log_args(args, logger):
     args_dict = vars(args)
     model_args = {key: value for key, value in args_dict.items() if key.startswith(args.model)}
     for key, value in model_args.items():
-        logger.info(f'  {key + ":":<20}{value:<20}')
+        if value is None:
+            logger.info(f'  {key + ":":<20}{"None":<20}')
+        else:
+            logger.info(f'  {key + ":":<20}{str(value):<20}')
     logger.info("\033[1m" + "Run Parameters" + "\033[0m")
     logger.info(f'  {"Num Workers:":<20}{args.num_workers:<20}{"Itr:":<20}{args.itr:<20}')
     logger.info(f'  {"Train Epochs:":<20}{args.train_epochs:<20}{"Batch Size:":<20}{args.batch_size:<20}')

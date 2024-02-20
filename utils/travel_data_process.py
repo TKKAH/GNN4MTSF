@@ -44,7 +44,6 @@ def process_origin_data_for_Canada(data_path, save_path):
     # 通过索引提速
     df_indexed = df_raw.set_index(['Date', 'Port of Entry', 'Region'])
     df_indexed = df_indexed.sort_index()
-
     new_values = np.zeros((len(dates) * len(stations), 5), dtype=object)
     for i, date in enumerate(dates):
         for j, station in enumerate(stations.values):
@@ -56,13 +55,14 @@ def process_origin_data_for_Canada(data_path, save_path):
                 new_values[i * len(stations) + j] = [date, station[0], station[1], -1, 0]
         print(str(i)+'/'+str(len(dates)))
     new_values_3d = new_values[:, 2:].reshape(len(dates), len(stations), -1)
+    print(new_values_3d.shape)
     np.savez(save_path, dates=dates, stations=stations, data=new_values_3d,
              RegionEncoderMapping=np.array(list(RegionEncoderMapping.items())),
              ModeEncoderMapping=np.array(list(ModeEncoderMapping.items())))
 
 
-#process_origin_data_for_Canada(r'..\dataset\Exit-and-entry\origin_data\open-government-traveller-report-daily-en.csv',
-#                               r'..\dataset\Exit-and-entry\Canada_Daily_Arrivals.npz')
+process_origin_data_for_Canada(r'dataset\Exit-and-entry\origin_data\open-government-traveller-report-daily-en.csv',
+                               r'dataset\Exit-and-entry\Canada_Daily_Arrivals.npz')
 
-process_origin_data_for_HK(r'dataset\Exit-and-entry\origin_data\statistics_on_daily_passenger_traffic.csv',
-                           r'dataset\Exit-and-entry\HK_Daily_Arrivals.npz')
+#process_origin_data_for_HK(r'dataset\Exit-and-entry\origin_data\statistics_on_daily_passenger_traffic.csv',
+#                           r'dataset\Exit-and-entry\HK_Daily_Arrivals.npz')

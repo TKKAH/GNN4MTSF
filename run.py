@@ -127,7 +127,7 @@ if __name__ == '__main__':
     parser.add_argument('--MSGNet_enc_dim', type=int, default=32)
     parser.add_argument('--MSGNet_enc_layers', type=int, default=1)
     parser.add_argument('--MSGNet_Predict_Layer_individual', type=bool, default=True)
-    parser.add_argument('--MSGNet_MSGNet_node_dim', type=int, default=10)
+    parser.add_argument('--MSGNet_node_dim', type=int, default=10)
     parser.add_argument('--MSGNet_conv_channel', type=int, default=32)
     parser.add_argument('--MSGNet_skip_channel', type=int, default=32)
     parser.add_argument('--MSGNet_gcn_depth', type=int, default=2)

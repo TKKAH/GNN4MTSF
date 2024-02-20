@@ -11,6 +11,8 @@ class Model(nn.Module):
         assert args.output_dim==1
         super(Model, self).__init__()
         self.adj = self.construct_adj(adj_mx,args.STSGCN_strides)
+        self.adj=torch.from_numpy(self.adj).float()
+        history=args.seq_len
         self.num_of_vertices = args.num_nodes
         self.hidden_dims = args.STSGCN_hidden_dims
         self.out_layer_dim = args.STSGCN_out_layer_dim
