@@ -10,7 +10,6 @@ def process_origin_data_for_HK(data_path, save_path):
     df_raw['总计']=df_raw['总计']-df_raw['香港居民']
     # 整个数据集中屯门客运码头和红磡数据都为0，故删除此两海关口，剩余14个
     df_raw = df_raw[(df_raw['管制站'] != '红磡') & (df_raw['管制站'] != '屯门客运码头')]
-    print(df_raw)
     # HK共有16个海关口，补全数据中缺失的海关口信息
     stations = df_raw['管制站'].unique()
     dates = df_raw['日期'].unique()

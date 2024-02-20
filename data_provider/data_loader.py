@@ -13,7 +13,7 @@ warnings.filterwarnings('ignore')
 
 
 class MTS_Dataset(Dataset):
-    def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
+    def __init__(self, input_dim,root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
                 scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
@@ -33,7 +33,7 @@ class MTS_Dataset(Dataset):
         self.train_ratio = train_ratio
         self.test_ratio = test_ratio
         self.logger = logger
-
+        self.input_dim=input_dim
         self.root_path = root_path
         self.data_path = data_path
         self.__read_data__()
@@ -92,7 +92,7 @@ class MTS_Dataset(Dataset):
 
 
 class MSTS_Dataset(Dataset):
-    def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
+    def __init__(self, input_dim,root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
                 scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
@@ -115,12 +115,14 @@ class MSTS_Dataset(Dataset):
         self.logger = logger
         self.root_path = root_path
         self.data_path = data_path
+        self.input_dim=input_dim
         self.__read_data__()
 
     def __read_data__(self):
         np_raw = np.load(os.path.join(self.root_path,
                                       self.data_path), allow_pickle=True)
         data = np_raw['data'].astype(float)
+        data=data[...,-self.input_dim:]
         border1s, border2s = split_data_border(len(data), self.seq_len, self.split_type, self.train_ratio,
                                                self.test_ratio)
         border1 = border1s[self.set_type]

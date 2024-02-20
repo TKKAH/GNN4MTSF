@@ -187,7 +187,7 @@ class Model(nn.Module, Seq2SeqAttrs):
 
         outputs = []
 
-        for t in range(self.decoder_model.horizon):
+        for t in range(self.decoder_model.pred_len):
             decoder_output, decoder_hidden_state = self.decoder_model(decoder_input, adj,
                                                                       decoder_hidden_state)
             decoder_input = decoder_output
@@ -207,7 +207,7 @@ class Model(nn.Module, Seq2SeqAttrs):
         :param batches_seen: batches seen till now
         :return: output: (self.horizon, batch_size, self.num_nodes * self.output_dim)
         """
-        x = self.node_feas.view(self.num_nodes, 1, -1)
+        x = self.node_fea.view(self.num_nodes, 1, -1)
         x = self.conv1(x)
         x = F.relu(x)
         x = self.bn1(x)

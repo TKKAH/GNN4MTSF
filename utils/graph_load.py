@@ -28,7 +28,7 @@ def create_knn_graph(root_path,data_path,k):
         df=df.drop(df.columns[0], axis=1)
         data = df[:num_train].values
         data = data.transpose((1, 0))
-    elif data_path.endswith(".pkl"):
+    elif data_path.endswith(".npz"):
         np_raw = np.load(os.path.join(root_path,data_path), allow_pickle=True)
         data = np_raw['data'].astype(float)
         data = data.transpose((1, 0, 2))

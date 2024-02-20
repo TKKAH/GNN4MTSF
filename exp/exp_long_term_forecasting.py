@@ -106,6 +106,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 else:
                     outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark,
                                              batches_seen=i + train_steps * epoch)
+
                     outputs,regularization_loss=self._spllit_outputs_and_calculate_regularization_loss(outputs)
                     f_dim =  0
                     outputs = outputs[:, -self.args.pred_len:, f_dim:]

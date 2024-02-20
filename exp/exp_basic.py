@@ -24,10 +24,11 @@ class Exp_Basic(object):
             'ASTGCN':ASTGCN,
             'MTGNN':MTGNN
         }
+        self.adj_mx=None
         self.logger = logger
         self.device = self._acquire_device()
         self.model = self._build_model().to(self.device)
-        self.adj_mx=None
+        
 
     def _build_model(self):
         adj_mx=None
@@ -76,6 +77,8 @@ class Exp_Basic(object):
             true_label = self.adj_mx.view(outputs[1].shape[0] * outputs[1].shape[1]).to(self.device)
             compute_loss = torch.nn.BCELoss()
             loss = compute_loss(pred, true_label)
+            return outputs[0],loss
+        elif self.args.model=='GTS' and self.args.loss_with_regularization is False:
             return outputs[0],loss
         else:
             return outputs,loss

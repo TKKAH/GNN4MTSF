@@ -22,6 +22,7 @@ def data_provider(args, flag, logger):
         shuffle_flag = True
     batch_size = args.batch_size  
     data_set = DataSet(
+        input_dim=args.input_dim,
         root_path=args.root_path,
         data_path=args.data_path,
         split_type=args.split_type,
