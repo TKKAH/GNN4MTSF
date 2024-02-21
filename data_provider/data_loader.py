@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 
 from utils.scale import scale_dataset
 from utils.split_border import split_data_border
-from utils.timefeatures import time_features_encode, time_features_no_encode
+from utils.timefeatures import check_date_format, time_features_encode, time_features_no_encode
 
 warnings.filterwarnings('ignore')
 
@@ -136,7 +136,11 @@ class MSTS_Dataset(Dataset):
         df_stamp = pd.DataFrame(np_raw['dates'][border1:border2])
         df_stamp.columns = df_stamp.columns.astype(str)
         df_stamp = df_stamp.rename(columns={'0': 'date'})
-        df_stamp['date'] = pd.to_datetime(df_stamp.date,format='%d-%m-%Y')
+        label=check_date_format(df_stamp['date'].iloc[0])
+        if label==1:
+            df_stamp['date'] = pd.to_datetime(df_stamp.date,format='%d-%m-%Y')
+        else:
+            df_stamp['date'] = pd.to_datetime(df_stamp.date,format='%Y-%m-%d')
         data_stamp = None
         if self.timeenc == 0:
             data_stamp = time_features_no_encode(df_stamp, self.freq)

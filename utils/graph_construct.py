@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from geopy.distance import geodesic
 
+from utils.graph_load import create_knn_graph
+
 def process_graph_data_for_HK(data_path, save_path):
     df_raw = pd.read_csv(data_path)
     distance_matrix = []
@@ -23,6 +25,14 @@ def process_graph_data_for_HK(data_path, save_path):
     distance_array +=E
     with open(save_path, 'wb') as f:
         pickle.dump(distance_array, f)
+def process_graph_data_for_Canada(root_path,data_path, save_path):
+    g,_=create_knn_graph(root_path,data_path,30)
+    g=g.numpy()
+    with open(save_path, 'wb') as f:
+        pickle.dump(g, f)
 
-process_graph_data_for_HK(r'dataset\Exit-and-entry\origin_data\stations_locations.csv',
-                           r'dataset\Exit-and-entry\HK_stations_graph.pkl')
+#process_graph_data_for_HK(r'dataset\Exit-and-entry\origin_data\stations_locations.csv',
+#                           r'dataset\Exit-and-entry\HK_stations_graph.pkl')
+
+#process_graph_data_for_Canada(r'dataset\Exit-and-entry\origin_data',r'Canada_Daily_Arrivals.npz',
+#                           r'dataset\Exit-and-entry\HK_stations_graph.pkl')
