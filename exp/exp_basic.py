@@ -6,6 +6,7 @@ from data_provider.data_factory import data_provider
 from models import ASTGCN, FCSTGNN, GTS, MTGAT, MTGNN, STSGCN, CrossGNN, HiPPOAGCRN, MSGNet, AGCRN, DCRNN
 from utils.graph_load import create_knn_graph, load_graph_data
 from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
+from utils.print_args import get_parameter_number
 
 
 class Exp_Basic(object):
@@ -42,6 +43,8 @@ class Exp_Basic(object):
 
         if self.args.use_multi_gpu and self.args.use_gpu:
             model = nn.DataParallel(model, device_ids=self.args.device_ids)
+        param=get_parameter_number(model)
+        self.logger.info("Param Number:"+str(param))
         return model
 
     def _acquire_device(self):

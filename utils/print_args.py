@@ -47,3 +47,8 @@ def get_model_args(args):
         model_args_str += f'{key}_{value}_'
     model_args_str = model_args_str.rstrip('_')  # 去掉最后一个逗号和空格
     return model_args_str
+def get_parameter_number(model):
+    total_num = sum(p.numel() for p in model.parameters())
+    trainable_num = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    data = {'Total': total_num, 'Trainable': trainable_num}
+    return data

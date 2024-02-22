@@ -61,8 +61,8 @@ def process_origin_data_for_Canada(data_path, save_path):
              ModeEncoderMapping=np.array(list(ModeEncoderMapping.items())))
 
 
-process_origin_data_for_Canada(r'dataset\Exit-and-entry\origin_data\open-government-traveller-report-daily-en.csv',
-                               r'dataset\Exit-and-entry\Canada_Daily_Arrivals.npz')
+#process_origin_data_for_Canada(r'dataset\Exit-and-entry\origin_data\open-government-traveller-report-daily-en.csv',
+#                               r'dataset\Exit-and-entry\Canada_Daily_Arrivals.npz')
 
-#process_origin_data_for_HK(r'dataset\Exit-and-entry\origin_data\statistics_on_daily_passenger_traffic.csv',
-#                           r'dataset\Exit-and-entry\HK_Daily_Arrivals.npz')
+process_origin_data_for_HK(r'dataset\Exit-and-entry\origin_data\statistics_on_daily_passenger_traffic.csv',
+                          r'dataset\Exit-and-entry\HK_Daily_Arrivals.npz')

@@ -28,11 +28,13 @@ def process_graph_data_for_HK(data_path, save_path):
 def process_graph_data_for_Canada(root_path,data_path, save_path):
     g,_=create_knn_graph(root_path,data_path,30)
     g=g.numpy()
+    E = np.eye(g.shape[0])
+    g=g+E
     with open(save_path, 'wb') as f:
         pickle.dump(g, f)
 
 #process_graph_data_for_HK(r'dataset\Exit-and-entry\origin_data\stations_locations.csv',
 #                           r'dataset\Exit-and-entry\HK_stations_graph.pkl')
 
-#process_graph_data_for_Canada(r'dataset\Exit-and-entry\origin_data',r'Canada_Daily_Arrivals.npz',
+#process_graph_data_for_Canada(r'dataset\Exit-and-entry',r'Canada_Daily_Arrivals.npz',
 #                           r'dataset\Exit-and-entry\HK_stations_graph.pkl')
