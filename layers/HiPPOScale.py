@@ -23,7 +23,6 @@ class HiPPOScale(nn.Module):
             B_stacked[t - 1] = la.solve_triangular(np.eye(N) - At / 2, Bt, lower=True)
         self.register_buffer('A_stacked', torch.Tensor(A_stacked)) # (max_length, N, N)
         self.register_buffer('B_stacked', torch.Tensor(B_stacked)) # (max_length, N)
-        print(self.B_stacked[2].shape)
 
     def transition(selff,N):
         q = np.arange(N, dtype=np.float64)

@@ -37,4 +37,4 @@ def process_graph_data_for_Canada(root_path,data_path, save_path):
 #                           r'dataset\Exit-and-entry\HK_stations_graph.pkl')
 
 #process_graph_data_for_Canada(r'dataset\Exit-and-entry',r'Canada_Daily_Arrivals.npz',
-#                           r'dataset\Exit-and-entry\HK_stations_graph.pkl')
+#                           r'dataset\Exit-and-entry\Canada_stations_graph.pkl')

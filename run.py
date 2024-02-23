@@ -77,6 +77,14 @@ if __name__ == '__main__':
     parser.add_argument('--HiPPOAGCRN_embed_dim', type=int, default=32) 
     parser.add_argument('--HiPPOAGCRN_cheb_k', default=2, type=int)
 
+    # for HHAGCRN
+    # predefined_graph should be false
+    parser.add_argument('--HHorder', type=int, default=64)
+    parser.add_argument('--HHAGCRN_hidden_dim', type=int, default=64)
+    parser.add_argument('--HHAGCRN_num_layers', type=int, default=1)
+    parser.add_argument('--HHAGCRN_embed_dim', type=int, default=32) 
+    parser.add_argument('--HHAGCRN_cheb_k', default=2, type=int)
+
     # for MTGAT
     # predefined_graph should be false
     # args.input_dim must be one
@@ -92,7 +100,7 @@ if __name__ == '__main__':
 
     #for STSGCN
     # predefined_graph should be true
-    parser.add_argument('--STSGCN_hidden_dims', type=list, default=[[64, 64, 64], [64, 64, 64], [64, 64, 64], [64, 64, 64]])
+    parser.add_argument('--STSGCN_hidden_dims', type=str, default="[[64, 64, 64], [64, 64, 64], [64, 64, 64], [64, 64, 64]]")
     parser.add_argument('--STSGCN_out_layer_dim', type=int, default=128)
     parser.add_argument('--STSGCN_first_layer_embedding_size', type=int, default=64)
     parser.add_argument('--STSGCN_activation', type=str, default='GLU')

@@ -1,3 +1,4 @@
+import ast
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -14,7 +15,7 @@ class Model(nn.Module):
         self.adj=torch.from_numpy(self.adj).float()
         history=args.seq_len
         self.num_of_vertices = args.num_nodes
-        self.hidden_dims = args.STSGCN_hidden_dims
+        self.hidden_dims = ast.literal_eval(args.STSGCN_hidden_dims)
         self.out_layer_dim = args.STSGCN_out_layer_dim
         self.activation = args.STSGCN_activation
         self.use_mask = args.STSGCN_use_mask
