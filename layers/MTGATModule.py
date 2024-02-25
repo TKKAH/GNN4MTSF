@@ -43,7 +43,7 @@ class FeatureAttentionLayer(nn.Module):
         self.use_gatv2 = use_gatv2
         self.num_nodes = n_features
         self.use_bias = use_bias
-
+        
         # Because linear transformation is done after concatenation in GATv2
         if self.use_gatv2:
             self.embed_dim *= 2
@@ -68,7 +68,6 @@ class FeatureAttentionLayer(nn.Module):
         # For feature attention we represent a node as the values of a particular feature across all timestamps
 
         x = x.permute(0, 2, 1)
-
         # 'Dynamic' GAT attention
         # Proposed by Brody et. al., 2021 (https://arxiv.org/pdf/2105.14491.pdf)
         # Linear transformation applied after concatenation and attention layer applied after leakyrelu
