@@ -26,7 +26,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                                                                           leave=True):
                 batch_x = batch_x.float().to(self.device)
                 batch_y = batch_y.float()
-
+                
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)
 
@@ -84,7 +84,6 @@ class Exp_Long_Term_Forecast(Exp_Basic):
                 iter_count += 1
                 model_optim.zero_grad()
                 batch_x = batch_x.float().to(self.device)
-
                 batch_y = batch_y.float().to(self.device)
                 batch_x_mark = batch_x_mark.float().to(self.device)
                 batch_y_mark = batch_y_mark.float().to(self.device)

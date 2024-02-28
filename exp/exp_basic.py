@@ -48,7 +48,7 @@ class Exp_Basic(object):
         model = self.model_dict[self.args.model].Model(self.args, adj_mx, self.device).float()
 
         if self.args.use_multi_gpu and self.args.use_gpu:
-            model = nn.DataParallel(model, device_ids=self.args.device_ids)
+            model = nn.DataParallel(model.cuda(), device_ids=self.args.device_ids)
         param=get_parameter_number(model)
         self.logger.info("Param Number:"+str(param))
         return model

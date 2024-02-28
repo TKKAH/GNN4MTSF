@@ -30,7 +30,7 @@ class FeatureAttentionLayer(nn.Module):
         self.use_gatv2 = use_gatv2
         self.num_nodes = n_features
         self.use_bias = use_bias
-        self.W=nn.Linear(window_size,embed_dim)
+        #self.W=nn.Linear(window_size,embed_dim)
         # Because linear transformation is done after concatenation in GATv2
         if self.use_gatv2:
             self.embed_dim *= 2
@@ -75,7 +75,8 @@ class FeatureAttentionLayer(nn.Module):
         # Attention weights
         attention = torch.softmax(e, dim=2)
         attention = torch.dropout(attention, self.dropout, train=self.training)
-
+        print(attention.shape)
+        return attention
         # Computing new node features using the attention
         x=self.W(x)
         h = self.sigmoid(torch.matmul(attention, x))
@@ -204,23 +205,25 @@ class HypAgg(MessagePassing):
         self.embed_dim=embed_dim
         self.c = c
         self.feature_gat = FeatureAttentionLayer(node_num, in_features, dropout=0.1, alpha=0.2, embed_dim=out_features, use_gatv2=True)
-        self.weights_pool = nn.Parameter(torch.ones(embed_dim, cheb_k, in_features, out_features))
+        self.weights_pool = nn.Parameter(torch.ones(embed_dim, cheb_k+1, in_features, out_features))
         self.bias_pool = nn.Parameter(torch.zeros(embed_dim, out_features))
     def forward(self, x, node_embeddings,adj):
         self.c=self.c.to(x.device)
         x = self.manifold.logmap0(x, c=self.c)
-        # 全局adj的GAT model
-        # gat_x=torch.transpose(x,1,2)
-        # x_gconv_1=self.feature_gat(gat_x)
-        # x_gconv=torch.transpose(x_gconv_1, 1, 2)
+        #adj 为全局图
+        # 局部根据数据自动GAT得到图
+        gat_x=torch.transpose(x,1,2)
+        jubu_graph=self.feature_gat(gat_x)
+        #x_gconv_1=torch.transpose(x_gconv_1, 1, 2)
         
-        # # 局部adj的AGCRN model
+        # 局部adj的AGCRN model
         node_num = node_embeddings.shape[0]
         #supports = F.softmax(F.relu(torch.mm(node_embeddings, node_embeddings.transpose(0, 1))), dim=1)
         supports=adj
         support_set = [torch.eye(node_num).to(supports.device), supports]
         for k in range(2, self.cheb_k):
             support_set.append(torch.matmul(2 * supports, support_set[-1]) - support_set[-2])
+        support_set.append(jubu_graph)
         supports = torch.stack(support_set, dim=0)
         weights = torch.einsum('nd,dkio->nkio', node_embeddings, self.weights_pool)  #N, cheb_k, dim_in, dim_out
 

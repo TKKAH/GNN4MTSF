@@ -3,16 +3,17 @@ import torch
 import torch.nn as nn
 from layers.HHAGCRNCell import HHAGCRNCell
 from torch.nn import functional as F
+
 class AVWDCRNN(nn.Module):
-    def __init__(self, node_num, dim_in, dim_out, cheb_k, embed_dim, order,dropout,num_layers=1):
+    def __init__(self,device, node_num, dim_in, dim_out, cheb_k, embed_dim, order,dropout,num_layers=1):
         super(AVWDCRNN, self).__init__()
         self.node_num = node_num
         self.input_dim = dim_in
         self.num_layers = num_layers
         self.dcrnn_cells = nn.ModuleList()
-        self.dcrnn_cells.append(HHAGCRNCell(node_num, dim_in, dim_out, cheb_k, embed_dim,order,dropout))
+        self.dcrnn_cells.append(HHAGCRNCell(node_num, dim_in, dim_out, cheb_k, embed_dim,order,dropout,device))
         for _ in range(1, num_layers):
-            self.dcrnn_cells.append(HHAGCRNCell(node_num, dim_out, dim_out, cheb_k, embed_dim,order,dropout))
+            self.dcrnn_cells.append(HHAGCRNCell(node_num, dim_out, dim_out, cheb_k, embed_dim,order,dropout,device))
 
     def forward(self, x, init_state, init_hippo_c,node_embeddings,adj):
         #shape of x: (B, T, N, D)
@@ -49,9 +50,9 @@ class Model(nn.Module):
         # assert adj_mx==None
         assert args.output_dim==1
         super(Model, self).__init__()
-        self.temperature=0.01
+        self.temperature=0.0001
         self.device=device
-        self.node_fea=adj_mx[1]
+        self.node_fea=adj_mx[1].to(self.device)
         self.num_node = args.num_nodes
         self.input_dim = args.input_dim
         self.hidden_dim = args.HHAGCRN_hidden_dim
@@ -60,18 +61,18 @@ class Model(nn.Module):
         self.num_layers = args.HHAGCRN_num_layers
         self.embeded_dim = args.HHAGCRN_embed_dim
         
-        self.encoder = AVWDCRNN(args.num_nodes, args.input_dim, args.HHAGCRN_hidden_dim, args.HHAGCRN_cheb_k,
+        self.encoder = AVWDCRNN(self.device,args.num_nodes, args.input_dim, args.HHAGCRN_hidden_dim, args.HHAGCRN_cheb_k,
                                 args.HHAGCRN_embed_dim, args.HHorder,args.dropout,args.HHAGCRN_num_layers)
 
-        self.end_conv_1=nn.Conv2d(1, args.pred_len * 2, kernel_size=(1, self.hidden_dim), bias=True)
-        #self.end_conv = nn.Conv2d(1, args.pred_len * self.output_dim, kernel_size=(1, self.hidden_dim), bias=True)
+        #self.end_conv=nn.Conv2d(1, args.pred_len * 2, kernel_size=(1, self.hidden_dim), bias=True)
+        self.end_conv = nn.Conv2d(1, args.pred_len * self.output_dim, kernel_size=(1, self.hidden_dim), bias=True)
         
         # 当前数据生成图
         self.node_embeddings = nn.Parameter(torch.randn(self.num_node, args.HHAGCRN_embed_dim), requires_grad=True)
 
         # 全部数据生成图
-        self.conv1 = torch.nn.Conv1d(1, 8, 10, stride=1)  # .to(device)
-        self.conv2 = torch.nn.Conv1d(8, 16, 10, stride=1)  # .to(device)
+        self.conv1 = torch.nn.Conv1d(1, 8, 10, stride=1)
+        self.conv2 = torch.nn.Conv1d(8, 16, 10, stride=1)
         self.hidden_drop = torch.nn.Dropout(0.2)
         self.fc = torch.nn.Linear(16*(self.node_fea.shape[1]-9-9), self.embeded_dim)
         self.bn1 = torch.nn.BatchNorm1d(8)
@@ -102,6 +103,7 @@ class Model(nn.Module):
 
     def gumbel_softmax_sample(self,logits, temperature, eps=1e-10):
         sample = self.sample_gumbel(logits.size(), eps=eps)
+        sample=sample.to(logits.device)
         y = logits + sample
         return F.softmax(y / temperature, dim=-1)
 
@@ -110,7 +112,7 @@ class Model(nn.Module):
         if hard:
             shape = logits.size()
             _, k = y_soft.data.max(-1)
-            y_hard = torch.zeros(*shape).to(self.device)
+            y_hard = torch.zeros(*shape).to(k.device)
             y_hard = y_hard.zero_().scatter_(-1, k.view(shape[:-1] + (1,)), 1.0)
             y = torch.autograd.Variable(y_hard - y_soft.data) + y_soft
         else:
@@ -122,8 +124,7 @@ class Model(nn.Module):
         means = source.mean(1, keepdim=True).detach()
         source = source - means
         stdev = torch.sqrt(torch.var(source, dim=1, keepdim=True, unbiased=False) + 1e-5)
-        source /= stdev
-
+        source /= stdev        
         #source: B, T_1, N, D
         #target: B, T_2, N, D
 
@@ -132,12 +133,14 @@ class Model(nn.Module):
         
         output = output[:, -1:, :, :]                                   #B, 1, N, hidden
         #CNN based predictor
-        output = self.end_conv_1((output))                         #B, T*C, N, 1
-        output = output.squeeze(-1).reshape(-1, self.horizon, 2, self.num_node)
-        output = output.permute(0, 1, 3, 2)    #B,T,N,2
+        output = self.end_conv((output))                         #B, T*C, N, 1
+        output = output.squeeze(-1).reshape(-1, self.horizon, 1, self.num_node)
+        output = output.permute(0, 1, 3, 2)    #B,T,N,1
         #采样
-        mu, logvar = output.chunk(2, dim=-1)
-        output = self.reparameterise(mu, logvar)
+        mu=0
+        logvar=0
+        #mu, logvar = output.chunk(2, dim=-1)
+        #output = self.reparameterise(mu, logvar)
         #B, T, N, C
         output = output * (stdev[:, 0, :, -1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
         output = output + (means[:, 0, :, -1:].unsqueeze(1).repeat(1, self.horizon, 1,1))
@@ -148,6 +151,9 @@ class Model(nn.Module):
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):
         # 时间季节特征
         #x= torch.cat([x_enc, x_mark_enc.unsqueeze(2).expand(-1, -1, self.num_node, -1)], dim=-1)
+        self.node_fea=self.node_fea.to(self.conv1.weight.device)
+        self.rel_rec=self.rel_rec.to(self.node_fea.device)
+        self.rel_send=self.rel_rec.to(self.node_fea.device)
         x = self.node_fea.view(self.num_node, 1, -1)
         x = self.conv1(x)
         x = F.relu(x)

@@ -35,7 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_ratio', type=float, default=0.7,help='train_ratio')
     parser.add_argument('--test_ratio', type=float, default=0.2,help='test_ratio')
     parser.add_argument('--scale', type=bool, default=True,help='scale data')
-    parser.add_argument('--scale_type', type=str, default='cmax',help='scale type')
+    parser.add_argument('--scale_type', type=str, default='std',help='scale type')
     parser.add_argument('--scale_column_wise', type=bool, default=True,help='scale_column_wise')
     parser.add_argument('--predefined_graph',action='store_true',default=False,help='input graph or not')
     parser.add_argument('--graph_path', type=str, required=True,default=None,help='the graph adj path')
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('--seq_len', type=int, required=True, help='input sequence length')
     parser.add_argument('--pred_len', type=int, required=True, help='prediction sequence length')
     parser.add_argument('--num_nodes', type=int, required=True,help='time series number')
-    parser.add_argument('--inverse', type=bool, help='inverse output data', default=True)
+    parser.add_argument('--inverse', type=bool, help='inverse output data', default=False)
     parser.add_argument('--input_dim', type=int, required=True,help='the input dim of one nodes in ont timestamp')
     parser.add_argument('--output_dim', type=int, default=1,help='must be one')
     parser.add_argument('--dropout', type=float, default=0.1, help='dropout,attention in different model use different')
@@ -67,7 +67,7 @@ if __name__ == '__main__':
     parser.add_argument('--AGCRN_hidden_dim', type=int, default=64)
     parser.add_argument('--AGCRN_num_layers', type=int, default=1)
     parser.add_argument('--AGCRN_embed_dim', type=int, default=32) 
-    parser.add_argument('--AGCRN_cheb_k', default=2, type=int)
+    parser.add_argument('--AGCRN_cheb_k', default=3, type=int)
 
     # for HiPPOAGCRN
     # predefined_graph should be false
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     parser.add_argument('--HiPPOAGCRN_hidden_dim', type=int, default=64)
     parser.add_argument('--HiPPOAGCRN_num_layers', type=int, default=1)
     parser.add_argument('--HiPPOAGCRN_embed_dim', type=int, default=32) 
-    parser.add_argument('--HiPPOAGCRN_cheb_k', default=2, type=int)
+    parser.add_argument('--HiPPOAGCRN_cheb_k', default=3, type=int)
 
     # for HHAGCRN
     # predefined_graph should be false
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     parser.add_argument('--HHAGCRN_hidden_dim', type=int, default=64)
     parser.add_argument('--HHAGCRN_num_layers', type=int, default=1)
     parser.add_argument('--HHAGCRN_embed_dim', type=int, default=32) 
-    parser.add_argument('--HHAGCRN_cheb_k', default=2, type=int)
+    parser.add_argument('--HHAGCRN_cheb_k', default=3, type=int)
     parser.add_argument('--HHAGCRN_graph_gru_hidden_size', default=64, type=int)
     
 
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=4, help='data loader num workers')
     parser.add_argument('--itr', type=int, default=1, help='experiments times')
     parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
-    parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
+    parser.add_argument('--batch_size', type=int, default=64, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=3, help='early stopping patience')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--loss', type=str, default='MAE', help='loss function')
@@ -196,7 +196,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
-    parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
+    parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
 
     args = parser.parse_args()
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False

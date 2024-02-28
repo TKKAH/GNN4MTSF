@@ -20,6 +20,7 @@ class HHAVWGCN(nn.Module):
         #x shaped[B, N, C], node_embeddings shaped [N, D] -> supports shaped [N, N]
         #output shape [B, N, C]
         #进行双曲图卷积
+        self.c0=self.c0.to(x.device)
         x_tan = self.PoicareBall.proj_tan0(x, self.c0)
         x_hyp = self.PoicareBall.expmap0(x_tan, self.c0)
         x_hyp = self.PoicareBall.proj(x_hyp, self.c0)
@@ -28,7 +29,7 @@ class HHAVWGCN(nn.Module):
         return x_gconv
 
 class HHAGCRNCell(nn.Module):
-    def __init__(self, node_num, dim_in, dim_out, cheb_k, embed_dim,order,dropout):
+    def __init__(self, node_num, dim_in, dim_out, cheb_k, embed_dim,order,dropout,device):
         super(HHAGCRNCell, self).__init__()
         self.node_num = node_num
         self.hidden_dim = dim_out
@@ -36,7 +37,7 @@ class HHAGCRNCell(nn.Module):
         self.W_uh = nn.Linear(self.hidden_dim, 1)
         self.meomory=HiPPOScale(order)
         self.order=order
-        self.hypebolic_c = Parameter(torch.ones(2, 1) * 1.0, requires_grad=True)
+        self.hypebolic_c = Parameter(torch.ones(2, 1) * 1.0, requires_grad=True).to(device)
         self.gate = HHAVWGCN(node_num,dim_in+self.hidden_dim+self.order, dim_out, self.PoicareBall, cheb_k,embed_dim,dropout,self.hypebolic_c[0],self.hypebolic_c[1])
         self.update = HHAVWGCN(node_num,dim_in+self.hidden_dim+self.order, dim_out, self.PoicareBall, cheb_k,embed_dim,dropout,self.hypebolic_c[0],self.hypebolic_c[1])
         
@@ -51,7 +52,7 @@ class HHAGCRNCell(nn.Module):
         # c=self.toHyperX(c, self.hypebolic_c[0])
         # state=self.toHyperX(state, self.hypebolic_c[0])
 
-        
+        self.hypebolic_c=self.hypebolic_c.to(x.device)
         state = state.to(x.device)
         c=c.to(x.device)
         mx=torch.cat((c, x), dim=-1)
