@@ -35,7 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('--train_ratio', type=float, default=0.7,help='train_ratio')
     parser.add_argument('--test_ratio', type=float, default=0.2,help='test_ratio')
     parser.add_argument('--scale', type=bool, default=True,help='scale data')
-    parser.add_argument('--scale_type', type=str, default='std',help='scale type')
+    parser.add_argument('--scale_type', type=str, default='cmax',help='scale type')
     parser.add_argument('--scale_column_wise', type=bool, default=True,help='scale_column_wise')
     parser.add_argument('--predefined_graph',action='store_true',default=False,help='input graph or not')
     parser.add_argument('--graph_path', type=str, required=True,default=None,help='the graph adj path')
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     parser.add_argument('--HiPPOAGCRN_hidden_dim', type=int, default=64)
     parser.add_argument('--HiPPOAGCRN_num_layers', type=int, default=1)
     parser.add_argument('--HiPPOAGCRN_embed_dim', type=int, default=32) 
-    parser.add_argument('--HiPPOAGCRN_cheb_k', default=3, type=int)
+    parser.add_argument('--HiPPOAGCRN_cheb_k', default=2, type=int)
 
     # for HHAGCRN
     # predefined_graph should be false
@@ -193,7 +193,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
     
     # GPU
-    parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
+    parser.add_argument('--use_gpu', type=bool, default=False, help='use gpu')
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
