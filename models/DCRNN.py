@@ -8,16 +8,16 @@ from layers.DCRNNCell import DCGRUCell
 class Seq2SeqAttrs:
     def __init__(self, args, adj_mx, device):
         self.adj_mx = adj_mx
-        self.max_diffusion_step = args.cheb_k
-        self.cl_decay_steps = args.cl_decay_steps
-        self.use_curriculum_learning = args.use_curriculum_learning
+        self.max_diffusion_step = args.DCRNN_cheb_k
+        self.cl_decay_steps = args.DCRNN_cl_decay_steps
+        self.use_curriculum_learning = args.DCRNN_use_curriculum_learning
         self.num_nodes = args.num_nodes
-        self.num_layers = args.num_layers
+        self.num_layers = args.DCRNN_num_layers
         self.input_dim = args.input_dim
         self.output_dim = args.output_dim
-        self.hidden_dim = args.hidden_dim
+        self.hidden_dim = args.DCRNN_hidden_dim
         self.hidden_state_size = self.num_nodes * self.hidden_dim
-        self.filter_type = args.filter_type
+        self.filter_type = args.DCRNN_filter_type
         self.seq_len = args.seq_len
         self.pred_len = args.pred_len
         self.batch_size = args.batch_size
@@ -92,8 +92,8 @@ class DecoderModel(nn.Module, Seq2SeqAttrs):
 
 class Model(nn.Module, Seq2SeqAttrs):
     def __init__(self, args, adj_mx, device):
-        if adj_mx is None:
-            raise Exception('DCRNN Model need a pre-defined graph!')
+        assert adj_mx is not None
+        assert args.output_dim==1
         super().__init__()
         Seq2SeqAttrs.__init__(self, args, adj_mx, device)
         self.encoder_model = EncoderModel(args, adj_mx, device)

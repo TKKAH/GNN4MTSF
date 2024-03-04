@@ -12,13 +12,14 @@
 # express or implied. See the License for the specific language governing
 # permissions and limitations under the License.
 
+
 from typing import List
 
 import numpy as np
 import pandas as pd
 from pandas.tseries import offsets
 from pandas.tseries.frequencies import to_offset
-
+from datetime import datetime
 
 class TimeFeature:
     def __init__(self):
@@ -158,3 +159,17 @@ def time_features_no_encode(df_stamp, freq):
         df_stamp['minute'] = df_stamp.minute.map(lambda x: x // 15)
     data_stamp = df_stamp.drop('date', axis=1).values
     return data_stamp
+def check_date_format(date_string):
+    try:
+        datetime.strptime(date_string, '%d-%m-%Y')
+        return 1
+    except ValueError:
+        pass
+
+    try:
+        datetime.strptime(date_string, '%Y-%m-%d')
+        return 0
+    except ValueError:
+        pass
+
+    raise ValueError(f"无法确定日期格式: {date_string}")

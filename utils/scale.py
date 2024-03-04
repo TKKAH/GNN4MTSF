@@ -78,17 +78,20 @@ class ColumnMinMaxScaler():
         self.min = min
         self.min_max = max - self.min
         self.min_max[self.min_max == 0] = 1
-        print(self.min_max)
 
     def transform(self, data):
         return (data - self.min) / self.min_max
 
-    def inverse_transform(self, data):
+    def inverse_transform(self, data):        
         if type(data) == torch.Tensor and type(self.min) == np.ndarray:
             self.min_max = torch.from_numpy(self.min_max).to(data.device).type(torch.float32)
             self.min = torch.from_numpy(self.min).to(data.device).type(torch.float32)
-        return (data * self.min_max + self.min)
-
+        min_max=self.min_max[...,-1]
+        min=self.min[...,-1]
+        if data.shape[-1]==self.min.shape[0]:
+            return (data * min_max + min)
+        else:
+            return (data * self.min_max + self.min)
 
 def scale_dataset(train_data, data, scaler, logger, column_wise=False):
     if scaler == 'max01':

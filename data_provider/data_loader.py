@@ -7,14 +7,14 @@ from torch.utils.data import Dataset
 
 from utils.scale import scale_dataset
 from utils.split_border import split_data_border
-from utils.timefeatures import time_features_encode, time_features_no_encode
+from utils.timefeatures import check_date_format, time_features_encode, time_features_no_encode
 
 warnings.filterwarnings('ignore')
 
 
 class MTS_Dataset(Dataset):
-    def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
-                 features, target, scale, scale_type, logger, scale_column_wise):
+    def __init__(self, input_dim,root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
+                scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
         self.seq_len = size[0]
@@ -24,8 +24,6 @@ class MTS_Dataset(Dataset):
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
 
-        self.features = features
-        self.target = target
         self.scale = scale
         self.scale_type = scale_type
         self.scale_column_wise = scale_column_wise
@@ -35,7 +33,7 @@ class MTS_Dataset(Dataset):
         self.train_ratio = train_ratio
         self.test_ratio = test_ratio
         self.logger = logger
-
+        self.input_dim=input_dim
         self.root_path = root_path
         self.data_path = data_path
         self.__read_data__()
@@ -49,12 +47,9 @@ class MTS_Dataset(Dataset):
         border1 = border1s[self.set_type]
         border2 = border2s[self.set_type]
         df_data = None
-        if self.features == 'M' or self.features == 'MS':
-            cols_data = df_raw.columns[1:]
-            df_data = df_raw[cols_data]
-        elif self.features == 'S':
-            #  [[]] be Series not DataFrame
-            df_data = df_raw[[self.target]]
+        
+        cols_data = df_raw.columns[1:]
+        df_data = df_raw[cols_data]
         # Normalize the overall data based on the training set data
         if self.scale:
             train_data = df_data[border1s[0]:border2s[0]]
@@ -97,8 +92,8 @@ class MTS_Dataset(Dataset):
 
 
 class MSTS_Dataset(Dataset):
-    def __init__(self, root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
-                 features, target, scale, scale_type, logger, scale_column_wise):
+    def __init__(self, input_dim,root_path, data_path, split_type, train_ratio, test_ratio, freq, timeenc, flag, size,
+                scale, scale_type, logger, scale_column_wise):
         # size [seq_len, label_len, pred_len]
         # info
         self.seq_len = size[0]
@@ -108,8 +103,6 @@ class MSTS_Dataset(Dataset):
         type_map = {'train': 0, 'val': 1, 'test': 2}
         self.set_type = type_map[flag]
 
-        self.features = features
-        self.target = target
         self.scale = scale
         self.scale_type = scale_type
         self.scale_column_wise = scale_column_wise
@@ -122,12 +115,14 @@ class MSTS_Dataset(Dataset):
         self.logger = logger
         self.root_path = root_path
         self.data_path = data_path
+        self.input_dim=input_dim
         self.__read_data__()
 
     def __read_data__(self):
         np_raw = np.load(os.path.join(self.root_path,
                                       self.data_path), allow_pickle=True)
         data = np_raw['data'].astype(float)
+        data=data[...,-self.input_dim:]
         border1s, border2s = split_data_border(len(data), self.seq_len, self.split_type, self.train_ratio,
                                                self.test_ratio)
         border1 = border1s[self.set_type]
@@ -141,14 +136,17 @@ class MSTS_Dataset(Dataset):
         df_stamp = pd.DataFrame(np_raw['dates'][border1:border2])
         df_stamp.columns = df_stamp.columns.astype(str)
         df_stamp = df_stamp.rename(columns={'0': 'date'})
-        df_stamp['date'] = pd.to_datetime(df_stamp.date)
+        label=check_date_format(df_stamp['date'].iloc[0])
+        if label==1:
+            df_stamp['date'] = pd.to_datetime(df_stamp.date,format='%d-%m-%Y')
+        else:
+            df_stamp['date'] = pd.to_datetime(df_stamp.date,format='%Y-%m-%d')
         data_stamp = None
         if self.timeenc == 0:
             data_stamp = time_features_no_encode(df_stamp, self.freq)
         elif self.timeenc == 1:
             data_stamp = time_features_encode(pd.to_datetime(df_stamp['date'].values), freq=self.freq)
             data_stamp = data_stamp.transpose(1, 0)
-
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp

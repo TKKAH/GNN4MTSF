@@ -5,7 +5,7 @@ import torch
 import matplotlib.pyplot as plt
 import pandas as pd
 import math
-
+from matplotlib.backends.backend_pdf import PdfPages
 plt.switch_backend('agg')
 
 
@@ -70,14 +70,20 @@ class dotdict(dict):
 def visual(true, preds=None, name='./pic/test.pdf'):
     """
     Results visualization
-    """
-    plt.figure()
-    plt.plot(true, label='GroundTruth', linewidth=2)
-    if preds is not None:
-        plt.plot(preds, label='Prediction', linewidth=2)
-    plt.legend()
-    plt.savefig(name, bbox_inches='tight')
-
+    """   
+    plot_true=np.transpose(true)
+    plot_preds=np.transpose(preds)
+    with PdfPages(name) as pdf:
+        for i in range(plot_true.shape[0]):
+            a=plot_true[i]
+            b=plot_preds[i]
+            plt.figure()
+            plt.plot(a, label='GroundTruth', linewidth=2)
+            if preds is not None:
+                plt.plot(b, label='Prediction', linewidth=2)
+            plt.legend()
+            pdf.savefig()
+            plt.close()
 
 def adjustment(gt, pred):
     anomaly_state = False

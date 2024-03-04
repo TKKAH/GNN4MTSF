@@ -8,7 +8,8 @@ data_dict = {
     'ETTm1': MTS_Dataset,
     'ETTm2': MTS_Dataset,
     'PEMS-BAY': MTS_Dataset,
-    'HKda': MSTS_Dataset
+    'HKda': MSTS_Dataset,
+    'Canada':MSTS_Dataset
 }
 
 
@@ -20,7 +21,9 @@ def data_provider(args, flag, logger):
     else:
         shuffle_flag = True
     batch_size = args.batch_size
+
     data_set = DataSet(
+        input_dim=args.input_dim,
         root_path=args.root_path,
         data_path=args.data_path,
         split_type=args.split_type,
@@ -29,9 +32,7 @@ def data_provider(args, flag, logger):
         freq=args.freq,
         timeenc=timeenc,
         flag=flag,
-        size=[args.seq_len, args.label_len, args.pred_len],
-        features=args.features,
-        target=args.target,
+        size=[args.seq_len, 0, args.pred_len],
         scale=args.scale,
         scale_type=args.scale_type,
         logger=logger,
