@@ -46,13 +46,13 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
                 total_loss.append(loss)
         total_loss = np.average(total_loss)
-        self.model.train()
         return total_loss
 
     def train(self, setting):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
+        print()
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -141,7 +141,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
             self.logger.info("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
             vali_loss = self.vali(vali_data, vali_loader, criterion)
-            test_loss = self.vali(test_data, test_loader, criterion)
+            test_loss = self.test(test_data, test_loader, criterion)
 
             self.logger.info("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format
                              (epoch + 1, train_steps, train_loss, vali_loss, test_loss))
