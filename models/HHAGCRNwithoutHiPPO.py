@@ -1,8 +1,10 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from layers.HHAGCRNCell import HHAGCRNCell
+
 from torch.nn import functional as F
+
+from layers.HHAGCRNwithoutHiPPOCell import HHAGCRNCell
 
 class AVWDCRNN(nn.Module):
     def __init__(self,device, node_num, dim_in, dim_out, cheb_k, embed_dim, order,dropout,num_layers=1):
@@ -56,7 +58,6 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.temperature=0.0001
         self.device=device
-        # self.node_fea=adj_mx[1].to(self.device)
         self.num_node = args.num_nodes
         self.input_dim = args.input_dim
         self.hidden_dim = args.HHAGCRN_hidden_dim
@@ -144,21 +145,6 @@ class Model(nn.Module):
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):
         # 时间季节特征
         # x_enc = torch.cat([x_enc, x_mark_enc.unsqueeze(2).expand(-1, -1, self.num_node, -1)], dim=-1)
-        # self.node_fea=self.node_fea.to(self.conv1.weight.device)
-        # self.rel_rec=self.rel_rec.to(self.node_fea.device)
-        # self.rel_send=self.rel_rec.to(self.node_fea.device)
-        # x = self.node_fea.view(self.num_node, 1, -1)
-        # x = self.conv1(x)
-        # x = F.relu(x)
-        # x = self.bn1(x)
-        # x = self.conv2(x)
-        # x = F.relu(x)
-        # x = self.bn2(x)
-        # x = x.view(self.num_node, -1)
-        # x = self.fc(x)
-        # x = F.relu(x)
-        # x = self.bn3(x) #N,embed_dim
-        
         receivers = torch.matmul(self.rel_rec, self.node_embeddings)
         senders = torch.matmul(self.rel_send, self.node_embeddings)
         x = torch.cat([senders, receivers], dim=1)

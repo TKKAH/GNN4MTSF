@@ -24,3 +24,6 @@ python -u run.py --task_name long_term_forecast --is_training 1 --model_id STSGC
 python -u run.py --task_name long_term_forecast --is_training 1 --model_id ASTGCN_31_31 --model ASTGCN --data HKda --predefined_graph --root_path dataset\Exit-and-entry --data_path HK_Daily_Arrivals.npz --graph_path HK_stations_graph.pkl --freq d --seq_len 31 --pred_len 31 --num_nodes 14 --input_dim 4
 # HHAGCRN
 python -u run.py --task_name long_term_forecast --is_training 1 --model_id HHAGCRN_31_31 --model HHAGCRN --data HKda --root_path dataset\Exit-and-entry --data_path HK_Daily_Arrivals.npz --graph_path None --freq d --seq_len 31 --pred_len 31 --num_nodes 14 --input_dim 4 
+
+
+python -u run.py --task_name long_term_forecast --is_training 1 --model_id HHAGCRN_96_96 --model HHAGCRN --data ETTh1 --root_path dataset\ETT-small --data_path ETTh1.csv --graph_path None --freq h --seq_len 96 --pred_len 96 --num_nodes 7 --input_dim 5 

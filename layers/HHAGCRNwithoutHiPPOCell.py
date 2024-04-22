@@ -31,9 +31,9 @@ class HHAVWGCN(nn.Module):
                 adj[k * N + i, (k + 1) * N + i] = 1
                 adj[(k + 1) * N + i, k * N + i] = 1
 
-        for i in range(len(adj)):
-            # 加入自环，在使用图卷积聚合信息时考虑自身特征
-            adj[i, i] = 1
+        # for i in range(len(adj)):
+        #     # 加入自环，在使用图卷积聚合信息时考虑自身特征
+        #     adj[i, i] = 1
         return adj
     def forward(self, x, node_embeddings,adj):
         #x            shaped [B, N, C]
@@ -66,10 +66,10 @@ class HHAGCRNCell(nn.Module):
         self.node_num = node_num
         self.hidden_dim = dim_out
         self.W_uh = nn.Linear(self.hidden_dim, 1)
-        self.meomory=HiPPOScale(order)
+        # self.meomory=HiPPOScale(order)
         self.order=order
-        self.gate = HHAVWGCN(dim_in+self.hidden_dim+self.order, dim_out, cheb_k,embed_dim,device)
-        self.update = HHAVWGCN(dim_in+self.hidden_dim+self.order, dim_out, cheb_k,embed_dim,device)
+        self.gate = HHAVWGCN(dim_in+self.hidden_dim, dim_out, cheb_k,embed_dim,device)
+        self.update = HHAVWGCN(dim_in+self.hidden_dim, dim_out, cheb_k,embed_dim,device)
         
 
     def forward(self, x, state, c,t,node_embeddings,adj):
@@ -84,21 +84,22 @@ class HHAGCRNCell(nn.Module):
         if len(x.shape)==4:
             x=x.reshape(x.shape[0],3*self.node_num,x.shape[3])
         if x.shape[1]==self.node_num:
-            mx=torch.cat((c, x), dim=-1)
-            input_and_state = torch.cat((mx, state), dim=-1)
+            # mx=torch.cat((c, x), dim=-1)
+            input_and_state = torch.cat((x, state), dim=-1)
         elif x.shape[1]==3*self.node_num:
-            c=c.repeat(1, 3, 1)
+            # c=c.repeat(1, 3, 1)
             state=state.repeat(1,3,1)
-            mx=torch.cat((c, x), dim=-1)
-            input_and_state = torch.cat((mx, state), dim=-1)
+            # mx=torch.cat((c, x), dim=-1)
+            input_and_state = torch.cat((x, state), dim=-1)
         g = torch.sigmoid(self.gate(input_and_state,node_embeddings,adj))
         hc = torch.tanh(self.update(input_and_state,node_embeddings,adj))
         if x.shape[1]==3*self.node_num:
-            c=c[:,0::3,:]
+            # c=c[:,0::3,:]
             state=state[:,0::3,:]
         h = (1-g)*state + g*hc
-        f=self.W_uh(h)
-        c=self.meomory(c,f,t)
+        # f=self.W_uh(h)
+        # c=self.meomory(c,f,t)
+        c=c
         return h,c
          
 

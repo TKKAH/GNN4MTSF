@@ -3,7 +3,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import ASTGCN, FCSTGNN, GTS, HHAGCRN, MTGAT, MTGNN, STSGCN, CrossGNN, HiPPOAGCRN, MSGNet, AGCRN, DCRNN
+from models import ASTGCN, FCSTGNN, GTS, HHAGCRN, MTGAT, MTGNN, STSGCN, CrossGNN, HHAGCRNwithoutHiPPO,  MSGNet, AGCRN, DCRNN
 from utils.graph_load import create_knn_graph, get_node_fea, load_graph_data
 from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
 from utils.print_args import get_parameter_number
@@ -15,7 +15,6 @@ class Exp_Basic(object):
         self.model_dict = {
             'DCRNN': DCRNN,
             'AGCRN': AGCRN,
-            'HiPPOAGCRN':HiPPOAGCRN,
             'MTGAT':MTGAT,
             'STSGCN':STSGCN,
             'FCSTGNN':FCSTGNN,
@@ -24,7 +23,8 @@ class Exp_Basic(object):
             'CrossGNN':CrossGNN,
             'ASTGCN':ASTGCN,
             'MTGNN':MTGNN,
-            'HHAGCRN':HHAGCRN
+            'HHAGCRN':HHAGCRN,
+            'HHAGCRNwithoutHiPPO':HHAGCRNwithoutHiPPO
         }
         self.adj_mx=None
         self.logger = logger
@@ -43,7 +43,8 @@ class Exp_Basic(object):
             adj_mx = load_graph_data(os.path.join(self.args.root_path, self.args.graph_path))
             self.adj_mx=adj_mx
         elif self.args.predefined_graph is False and (self.args.model=='GTS' or self.args.model=='HHAGCRN'):
-            adj_mx=  create_knn_graph(self.args.root_path,self.args.data_path,self.args.GTS_neighbor_graph_k)
+            adj_mx=[None,None]
+            #adj_mx=  create_knn_graph(self.args.root_path,self.args.data_path,self.args.GTS_neighbor_graph_k)
             self.adj_mx=adj_mx[0]
         model = self.model_dict[self.args.model].Model(self.args, adj_mx, self.device).float()
 
@@ -89,7 +90,7 @@ class Exp_Basic(object):
             return outputs[0],loss
         elif self.args.model=='GTS' and self.args.loss_with_regularization is False:
             return outputs[0],loss
-        elif self.args.model=='HHAGCRN':
+        elif self.args.model.startswith('HHAGCRN'):
             if self.args.loss_with_kl is True:
                 mu=outputs[2]
                 logvar=outputs[3]
