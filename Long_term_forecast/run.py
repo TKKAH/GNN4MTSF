@@ -190,13 +190,13 @@ if __name__ == '__main__':
     parser.add_argument('--loss_with_kl', action='store_true',default=False,help='only use for HHAGCRN model')
     parser.add_argument('--loss_with_regularization', action='store_true',default=False,help='only use for GTS and HHAGCRN model')
     parser.add_argument('--lradj', type=str, default='type1', help='adjust learning rate')
-    parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
+    parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=True)
     
     # GPU
-    parser.add_argument('--use_gpu', type=bool, default=False, help='use gpu')
+    parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
-    parser.add_argument('--devices', type=str, default='0,1', help='device ids of multile gpus')
+    parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
 
     args = parser.parse_args()
     args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False

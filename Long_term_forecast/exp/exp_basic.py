@@ -3,7 +3,7 @@ import torch
 from torch import nn, optim
 
 from data_provider.data_factory import data_provider
-from models import ASTGCN, FCSTGNN, GTS, HHAGCRN, MTGAT, MTGNN, STSGCN, CrossGNN, HHAGCRNwithoutHiPPO,  MSGNet, AGCRN, DCRNN
+from models import ASTGCN, FCSTGNN, GTS, HHAGCRN, MTGAT, MTGNN, STSGCN, CrossGNN, HHAGCRNwithoutAGL, HHAGCRNwithoutHiPPO, HHAGCRNwithoutNPW,  MSGNet, AGCRN, DCRNN
 from utils.graph_load import create_knn_graph, get_node_fea, load_graph_data
 from utils.losses import mape_loss, smape_loss, mse_loss, mae_loss
 from utils.print_args import get_parameter_number
@@ -24,7 +24,9 @@ class Exp_Basic(object):
             'ASTGCN':ASTGCN,
             'MTGNN':MTGNN,
             'HHAGCRN':HHAGCRN,
-            'HHAGCRNwithoutHiPPO':HHAGCRNwithoutHiPPO
+            'HHAGCRNwithoutHiPPO':HHAGCRNwithoutHiPPO,
+            'HHAGCRNwithoutNPW':HHAGCRNwithoutNPW,
+            'HHAGCRNwithoutAGL':HHAGCRNwithoutAGL
         }
         self.adj_mx=None
         self.logger = logger
@@ -56,8 +58,9 @@ class Exp_Basic(object):
 
     def _acquire_device(self):
         if self.args.use_gpu:
-            os.environ["CUDA_VISIBLE_DEVICES"] = str(
-                self.args.gpu) if not self.args.use_multi_gpu else self.args.devices
+            os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
+            # os.environ["CUDA_VISIBLE_DEVICES"] = str(
+            #     self.args.gpu) if not self.args.use_multi_gpu else self.args.devices
             device = torch.device('cuda:{}'.format(self.args.gpu))
             self.logger.info('Use GPU: cuda:{}'.format(self.args.gpu))
         else:

@@ -23,7 +23,7 @@ class HHAVWGCN(nn.Module):
         adj = np.zeros((N * steps, N * steps))
         for i in range(steps):
             # 对角线上是空间邻接矩阵
-            adj[i * N: (i + 1) * N, i * N: (i + 1) * N] = A.detach().numpy()
+            adj[i * N: (i + 1) * N, i * N: (i + 1) * N] = A.cpu().detach().numpy()
 
         for i in range(N):
             for k in range(steps - 1):
@@ -35,11 +35,26 @@ class HHAVWGCN(nn.Module):
             # 加入自环，在使用图卷积聚合信息时考虑自身特征
             adj[i, i] = 1
         return adj
+    def _calculate_random_walk_matrix(self, adj_mx):
+
+        # tf.Print(adj_mx, [adj_mx], message="This is adj: ")
+
+        adj_mx = adj_mx + torch.eye(int(adj_mx.shape[0])).to(self.device)
+        d = torch.sum(adj_mx, 1)
+        d_inv = 1. / d
+        # 这个操作的目的是处理逆矩阵中可能存在的无穷值情况。
+        # 在计算逆矩阵时，如果某个元素的倒数为无穷大（inf），则将其替换为零。
+        d_inv = torch.where(torch.isinf(d_inv), torch.zeros(d_inv.shape).to(self.device), d_inv)
+        d_mat_inv = torch.diag(d_inv)
+        # DI**（-1）A**T
+        random_walk_mx = torch.mm(d_mat_inv, adj_mx)
+        return random_walk_mx
     def forward(self, x, node_embeddings,adj):
         #x            shaped [B, N, C]
         #adj/supports shaped [N, N]
         #output       shaped [B, N, C]
         node_num = adj.shape[0]
+        # adj=self._calculate_random_walk_matrix(adj)
         if x.shape[1]==node_num:
             supports = adj
             support_set = [torch.eye(node_num).to(supports.device), supports]
@@ -77,8 +92,8 @@ class HHAGCRNCell(nn.Module):
         #state: B, num_nodes, hidden_dim
         #c:     B,num_nodes,order
 
-        # state = state.to(x.device)
-        # c=c.to(x.device)
+        state = state.to(x.device)
+        c=c.to(x.device)
         # mx=torch.cat((c, x), dim=-1)
         # input_and_state = torch.cat((mx, state), dim=-1)
         if len(x.shape)==4:

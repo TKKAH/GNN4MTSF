@@ -4,7 +4,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
-
+from sklearn.preprocessing import StandardScaler
 from utils.scale import scale_dataset
 from utils.split_border import split_data_border
 from utils.timefeatures import check_date_format, time_features_encode, time_features_no_encode
@@ -52,9 +52,13 @@ class MTS_Dataset(Dataset):
         df_data = df_raw[cols_data]
         # Normalize the overall data based on the training set data
         if self.scale:
+            self.scaler = StandardScaler()
             train_data = df_data[border1s[0]:border2s[0]]
-            data, self.scaler = scale_dataset(train_data.values, df_data.values, self.scale_type, self.logger,
-                                              self.scale_column_wise)
+            self.scaler.fit(train_data.values)
+            data = self.scaler.transform(df_data.values)
+            # train_data = df_data[border1s[0]:border2s[0]]
+            # data, self.scaler = scale_dataset(train_data.values, df_data.values, self.scale_type, self.logger,
+            #                                   self.scale_column_wise)
         else:
             data = df_data.values
         # Add time feature

@@ -1,8 +1,10 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from layers.HHAGCRNCell import HHAGCRNCell
+
 from torch.nn import functional as F
+
+from layers.HHAGCRNwithoutNPWCell import HHAGCRNCell
 
 class AVWDCRNN(nn.Module):
     def __init__(self,device, node_num, dim_in, dim_out, cheb_k, embed_dim, order,dropout,num_layers=1):
@@ -22,23 +24,25 @@ class AVWDCRNN(nn.Module):
         seq_length = x.shape[1]
         current_inputs = x
         output_hidden = []
+        output_c=[]
         for i in range(self.num_layers):
             state = init_state[i]
             hippo_c=init_hippo_c[i]
             inner_states = []
             for t in range(seq_length):
-                #state,hippo_c = self.dcrnn_cells[i](current_inputs[:, t, :, :], state, hippo_c,t,node_embeddings,adj)
+                # state,hippo_c = self.dcrnn_cells[i](current_inputs[:, t, :, :], state, hippo_c,t,node_embeddings,adj)
                 if t==0 or t==seq_length-1:
                     state,hippo_c = self.dcrnn_cells[i](current_inputs[:, t, :, :], state, hippo_c,t,node_embeddings,adj)
                 else:
                     state,hippo_c = self.dcrnn_cells[i](current_inputs[:, t-1:t+2, :, :], state, hippo_c,t,node_embeddings,adj)
                 inner_states.append(state)
             output_hidden.append(state)
+            output_c.append(hippo_c)
             current_inputs = torch.stack(inner_states, dim=1)
         #current_inputs: the outputs of last layer: (B, T, N, hidden_dim)
         #output_hidden: the last state for each layer: (num_layers, B, N, hidden_dim)
         #last_state: (B, N, hidden_dim)
-        return current_inputs, output_hidden
+        return current_inputs, output_hidden,output_c
 
     def init_hidden(self, batch_size):
         init_states = []
@@ -64,11 +68,12 @@ class Model(nn.Module):
         self.horizon = args.pred_len 
         self.num_layers = args.HHAGCRN_num_layers
         self.embeded_dim = args.HHAGCRN_embed_dim
+        self.seq_len=args.seq_len
         
         self.encoder = AVWDCRNN(self.device,args.num_nodes, args.input_dim, args.HHAGCRN_hidden_dim, args.HHAGCRN_cheb_k,
                                 args.HHAGCRN_embed_dim, args.HHorder,args.dropout,args.HHAGCRN_num_layers)
 
-        self.end_conv = nn.Conv2d(1, args.pred_len * self.output_dim, kernel_size=(1, self.hidden_dim), bias=True)
+        self.end_conv = nn.Conv2d(self.seq_len, args.pred_len * self.output_dim, kernel_size=(1, self.hidden_dim), bias=True)
         
         
         self.node_embeddings = nn.Parameter(torch.randn(self.num_node, args.HHAGCRN_embed_dim), requires_grad=True)
@@ -113,24 +118,28 @@ class Model(nn.Module):
         else:
             y = y_soft
         return y
-    def forecast(self, source,node_embeddings,adj):
+
+    def forecast(self, source,node_embeddings,adj,labels,batches_seen):
         # shape (batch_size, seq_len, num_sensor, input_dim)
         # Normalization from Non-stationary Transformer
         means = source.mean(1, keepdim=True).detach()
         source = source - means
         stdev = torch.sqrt(torch.var(source, dim=1, keepdim=True, unbiased=False) + 1e-5)
-        source /= stdev        
+        # source /= stdev        
         #source: B, T_1, N, D
         #target: B, T_2, N, D
 
         init_state,init_hippo_c = self.encoder.init_hidden(source.shape[0])
-        output, _ = self.encoder(source, init_state, init_hippo_c,node_embeddings,adj)      #B, T, N, hidden
+        output, _,_ = self.encoder(source, init_state, init_hippo_c,node_embeddings,adj)      #B, T, N, hidden
+
         
-        output = output[:, -1:, :, :]                                   #B, 1, N, hidden
+        # output = output[:, -1:, :, :]                                   #B, 1, N, hidden
         #CNN based predictor
         output = self.end_conv((output))                         #B, T*C, N, 1
         output = output.squeeze(-1).reshape(-1, self.horizon, 1, self.num_node)
         output = output.permute(0, 1, 3, 2)    #B,T,N,1
+        
+        
         #采样
         mu=0
         logvar=0
@@ -144,23 +153,9 @@ class Model(nn.Module):
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec, batches_seen=None):
         # 时间季节特征
         # x_enc = torch.cat([x_enc, x_mark_enc.unsqueeze(2).expand(-1, -1, self.num_node, -1)], dim=-1)
-        # self.node_fea=self.node_fea.to(self.conv1.weight.device)
-        # self.rel_rec=self.rel_rec.to(self.node_fea.device)
-        # self.rel_send=self.rel_rec.to(self.node_fea.device)
-        # x = self.node_fea.view(self.num_node, 1, -1)
-        # x = self.conv1(x)
-        # x = F.relu(x)
-        # x = self.bn1(x)
-        # x = self.conv2(x)
-        # x = F.relu(x)
-        # x = self.bn2(x)
-        # x = x.view(self.num_node, -1)
-        # x = self.fc(x)
-        # x = F.relu(x)
-        # x = self.bn3(x) #N,embed_dim
         
-        receivers = torch.matmul(self.rel_rec, self.node_embeddings)
-        senders = torch.matmul(self.rel_send, self.node_embeddings)
+        receivers = torch.matmul(self.rel_rec, self.node_embeddings2)
+        senders = torch.matmul(self.rel_send, self.node_embeddings2)
         x = torch.cat([senders, receivers], dim=1)
         x = torch.relu(self.fc_out(x))
         x = self.fc_cat(x)
@@ -170,5 +165,5 @@ class Model(nn.Module):
         adj = adj[:, 0].clone().reshape(self.num_node, -1)
         mask = torch.eye(self.num_node, self.num_node).bool().to(self.device)
         adj.masked_fill_(mask, 0)
-        dec_out = self.forecast(x_enc,self.node_embeddings,adj)
+        dec_out = self.forecast(x_enc,self.node_embeddings,adj,x_dec,batches_seen)
         return dec_out

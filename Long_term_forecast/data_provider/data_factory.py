@@ -7,9 +7,10 @@ data_dict = {
     'ETTh2': MTS_Dataset,
     'ETTm1': MTS_Dataset,
     'ETTm2': MTS_Dataset,
-    'PEMS-BAY': MTS_Dataset,
-    'HKda': MSTS_Dataset,
-    'Canada':MSTS_Dataset
+    'exchange_rate':MTS_Dataset,
+    'weather':MTS_Dataset,
+    'electricity':MTS_Dataset,
+    'traffic':MTS_Dataset
 }
 
 
