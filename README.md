@@ -8,6 +8,9 @@
 pip install -r requirements.txt
 ```
 # Dataset
+The long term forecast dataset can get from [Time-Series-Library](https://github.com/thuml/Time-Series-Library).
+
+The short term forecast dataset can get from [DCRNN](https://github.com/liyaguang/DCRNN).
 <div style="display: flex; flex-direction: column; align-items: center;">
     <img src="pic/dataset.png" alt="dataset" width="800" />
     <img src="pic/dataset2.png" alt="dataset" width="800" />
@@ -15,7 +18,7 @@ pip install -r requirements.txt
 
 # Comparative Experiment
 ## Long term forecast
-The baseline result get from the paper: [TimesNet](https://arxiv.org/abs/2210.02186). The ```models``` contains the realative paper's model in this fields.
+The baseline result get from the paper: [TimesNet](https://arxiv.org/abs/2210.02186). The ```Long_term_forecast/models``` contains the realative paper's model in this fields.
 
 See ```scripts/long_term_forecast/comparative.md``` to get all scripts.
 ### Result
