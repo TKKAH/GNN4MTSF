@@ -1,8 +1,10 @@
 .idea/
 venv/
 dataset/
+data/
 **/__pycache__
 checkpoints/
+models/
 results/
 All_Result/long_term_forecast
 All_Result/short_term_forecast

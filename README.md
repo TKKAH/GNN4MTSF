@@ -4,6 +4,7 @@
 ## ST-GCRN
 ![dataset](pic/model_2.png)
 # Requirements
+With the pytorch and NVIDIA RTX 4090 GPU
 ```
 pip install -r requirements.txt
 ```
@@ -24,23 +25,48 @@ See ```scripts/long_term_forecast/comparative.md``` to get all scripts.
 ### Result
 ![dataset](pic/comparative.png)
 ## Short term forecast
+### Result
+The baseline result get from own model paper.
+
+See ```scripts/short_term_forecast/comparative.md``` to get all scripts.
+<div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
+    <img src="pic/comparative2.png" alt="dataset" style="width: 50%; height: 50%;" />
+    <img src="pic/comparative3.png" alt="dataset" style="width: 50%; height: 50%;" />
+</div>
+
 # Ablation Study
 ## Long term forecast
 ### Optional
-- `is_training`: 1/0
-- `model_id`:
-    - HHAGCRN_96_96,HHAGCRN_96_192, HHAGCRN_96_336,HHAGCRN_96_720
-    - HHAGCRNwithoutAGL_96_96,HHAGCRNwithoutAGL_96_192,HHAGCRNwithoutAGL_96_336,HHAGCRNwithoutAGL_96_720
-    - HHAGCRNwithoutNPW_96_96,HHAGCRNwithoutNPW_96_192,HHAGCRNwithoutNPW_96_336,HHAGCRNwithoutNPW_96_720
-    - HHAGCRNwithoutHiPPO_96_96,HHAGCRNwithoutHiPPO_96_192,HHAGCRNwithoutHiPPO_96_336,HHAGCRNwithoutHiPPO_96_720
-- `seq_len`: 96
-- `pred_len`: 96, 192, 336, 720
+- HHAGCRNwithoutAGL:
+    replace the adaptive learning graph with the fully connect graph.
+
+    key code:```adj_new = torch.ones((node_num, node_num)).to(x.device)```
+- HHAGCRNwithoutNPW:
+    replace the node pattern weights poll with the traditional weights martix.
+
+    key code:```x_gconv = torch.einsum('bnki,kio->bno', x_g, self.weights_pool) + self.bias_pool```
+- HHAGCRNwithoutHiPPO:
+    replace the hippo gru unit with the tradiontial gru unit.
+
+    key code:```# c=self.meomory(c,f,t)```
 
 See ```scripts/long_term_forecast/ablation.md``` to get all scripts
 ### Result
 ![dataset](pic/ablation.png)
 ## Short term forecast
+### Optional
+- HHAGCRNwithoutAGL:
+    replace the adaptive learning graph with the fully connect graph.
 
+    key code:```adj=torch.ones(self.num_nodes, self.num_nodes).to(device)```
+- HHAGCRNwithoutGCN:
+    replace the graph convolution network with the traditional mlp.
+
+    key code:```c=fn(inputs, adj_mx, r * hx, self._num_units)```
+
+See ```scripts/short_term_forecast/ablation.md``` to get all scripts
+### Result
+![dataset](pic/ablation2.png)
 # Visual
 Long term forecast visual pdf save in the test process,see the relative result.
 
